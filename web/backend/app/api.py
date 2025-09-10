@@ -61,25 +61,28 @@ async def post_readings(
     # Check if MAC address is valid (basic check)
     verify_mac(mac)
     # Insert readings into the database
-    async with db.transaction():
-        try:
-            async with db.cursor() as cur:
-                # Make sure the sensor exists
-                await cur.execute("INSERT INTO sensors (mac) VALUES (%s) ON CONFLICT (mac) DO NOTHING", (mac,))
-                # Insert each reading
-                for i in range(len(readings.timestamps)):
-                    delta_t = readings.timestamps[i] - readings.now
-                    now = int(time.time())
-                    absolute_timestamp = now + delta_t
-                    await cur.execute(
-                        """INSERT INTO readings (mac, timestamp, humidity, temperature, battery)
-                        VALUES (%s, to_timestamp(%s), %s, %s, %s)
-                        ON CONFLICT (mac, timestamp) DO NOTHING""",
-                        (mac, absolute_timestamp, readings.humidity[i], readings.temperature[i], readings.battery[i])
-                    )
-        except Exception as e:
-            logger.error(f"Error inserting readings: {e}")
-            raise e
+    try:
+        async with db.cursor() as cur:
+            # Make sure the sensor exists
+            await cur.execute("INSERT INTO sensors (mac) VALUES (%s) ON CONFLICT (mac) DO NOTHING", (mac,))
+            # Insert each reading
+            for i in range(len(readings.timestamps)):
+                delta_t = readings.timestamps[i] - readings.now
+                now = int(time.time())
+                absolute_timestamp = now + delta_t
+                await cur.execute(
+                    """INSERT INTO readings (mac, timestamp, humidity, temperature, battery)
+                    VALUES (%s, to_timestamp(%s), %s, %s, %s)
+                    ON CONFLICT (mac, timestamp) DO NOTHING""",
+                    (mac, absolute_timestamp, readings.humidity[i], readings.temperature[i], readings.battery[i])
+                )
+        # Explicitly commit the changes
+        await db.commit()
+    except Exception as e:
+        logger.error(f"Error inserting readings: {e}")
+        # Rollback in case of error
+        await db.rollback()
+        raise fastapi.HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     return fastapi.Response(status_code=200)
 

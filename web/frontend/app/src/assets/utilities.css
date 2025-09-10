@@ -188,7 +188,7 @@
 .error {
   text-align: center;
   padding: 2rem;
-  color: #dc3545;
+  color: var(--color-error-1);
 }
 
 .empty {
@@ -196,6 +196,10 @@
   padding: 2rem;
   color: var(--color-text);
   font-style: italic;
+}
+
+.accent-bg {
+  background: linear-gradient(135deg, var(--color-accent-1), var(--color-accent-2));
 }
 
 /* Responsive utilities */

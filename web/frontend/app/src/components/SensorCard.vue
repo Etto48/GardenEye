@@ -57,15 +57,24 @@ const formatBattery = (battery: number) => {
         <div class="card-content">
             <div v-if="sensor.latest_reading" class="readings flex flex-col gap-sm">
                 <div class="detail-item">
-                    <span class="detail-label">Temperature:</span>
+                    <span class="detail-label">
+                        <i class="bi bi-thermometer-half"></i>
+                        Temperature:
+                    </span>
                     <span class="detail-value">{{ sensor.latest_reading.temperature.toFixed(1) }}°C</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Humidity:</span>
+                    <span class="detail-label">
+                        <i class="bi bi-droplet-half"></i>
+                        Humidity:
+                    </span>
                     <span class="detail-value">{{ sensor.latest_reading.humidity.toFixed(1) }}%</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Battery:</span>
+                    <span class="detail-label">
+                        <i class="bi bi-battery-half"></i>
+                        Battery:
+                    </span>
                     <span class="detail-value">{{ formatBattery(sensor.latest_reading.battery) }}</span>
                 </div>
                 <div class="detail-item">
@@ -81,6 +90,11 @@ const formatBattery = (battery: number) => {
 </template>
 
 <style scoped>
+.detail-label i {
+    margin-right: 0.5rem;
+    color: inherit;
+}
+
 @media (max-width: 768px) {
     .sensor-card {
         padding: 1rem;

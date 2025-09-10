@@ -22,12 +22,12 @@
 }
 
 .btn-primary {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: var(--color-accent);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: hsla(160, 100%, 32%, 1);
+  background-color: var(--color-accent-hover);
 }
 
 .btn-primary:disabled {
@@ -87,11 +87,11 @@
 }
 
 .status-indicator.online {
-  color: hsla(160, 100%, 32%, 1);
+  animation: pulse-online 2s infinite;
 }
 
 .status-indicator.offline {
-  color: hsla(0, 100%, 50%, 1);
+  animation: pulse-offline 2s infinite;
 }
 
 /* Detail Items */
@@ -135,4 +135,9 @@
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   display: inline-block;
+}
+
+.section-header {
+  border-bottom: 2px solid var(--color-background-mute);
+  padding: 10px;
 }

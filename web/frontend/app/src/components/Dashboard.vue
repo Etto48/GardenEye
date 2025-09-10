@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SensorList from './SensorList.vue';
+import SystemSummary from './SystemSummary.vue';
 
 </script>
 
@@ -9,6 +10,7 @@ import SensorList from './SensorList.vue';
             <h1 class="dashboard-title">Dashboard</h1>
             <p class="dashboard-subtitle">Monitor your garden sensors in real-time</p>
         </div>
+        <SystemSummary />
         <SensorList />
     </div>
 </template>
