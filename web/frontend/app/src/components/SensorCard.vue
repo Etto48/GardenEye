@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { Sensor } from '@/types/sensor'
 
 defineProps<{
     sensor: Sensor
 }>()
+
+const router = useRouter()
 
 const displayName = (sensor: Sensor) => {
     return sensor.name || sensor.mac
@@ -44,6 +47,10 @@ const formatTimestamp = (timestamp: number) => {
 const formatBattery = (battery: number) => {
     return `${(battery).toFixed(1)}V`
 }
+
+const viewHistory = (sensor: Sensor) => {
+    router.push({ name: 'history', query: { mac: sensor.mac } })
+}
 </script>
 
 <template>
@@ -83,8 +90,21 @@ const formatBattery = (battery: number) => {
                 </div>
             </div>
             <div v-else class="empty">
+                <div class="empty-icon">
+                    <i class="bi bi-database-x"></i>
+                </div>
                 <p>No readings available</p>
             </div>
+        </div>
+        <div v-if="sensor.latest_reading" class="card-footer">
+            <button 
+                @click="viewHistory(sensor)" 
+                class="history-button"
+                :title="`View history for ${displayName(sensor)}`"
+            >
+                <i class="bi bi-graph-up"></i>
+                View History
+            </button>
         </div>
     </div>
 </template>
@@ -93,6 +113,56 @@ const formatBattery = (battery: number) => {
 .detail-label i {
     margin-right: 0.5rem;
     color: inherit;
+}
+
+.empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--color-text-soft);
+}
+
+.empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-soft);
+    opacity: 0.6;
+}
+
+.empty p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.card-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.history-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.history-button:hover {
+    background: var(--color-accent-dark);
+    transform: translateY(-1px);
+}
+
+.history-button:active {
+    transform: translateY(0);
 }
 
 @media (max-width: 768px) {

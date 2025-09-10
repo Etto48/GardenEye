@@ -54,7 +54,10 @@ defineExpose({
         </div>
         
         <div v-else-if="sensors.length === 0" class="empty">
-            No sensors found
+            <div class="empty-icon">
+                <i class="bi bi-wifi-off"></i>
+            </div>
+            <p>No sensors found</p>
         </div>
         
         <div v-else class="grid grid-auto-fill mobile-grid-cols-1 mobile-gap-md">
@@ -66,5 +69,23 @@ defineExpose({
 <style scoped>
 .sensor-list {
     padding: 0;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-text-soft);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--color-text-soft);
+    opacity: 0.6;
+}
+
+.empty p {
+    margin: 0;
+    font-size: 1rem;
 }
 </style>

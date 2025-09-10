@@ -68,8 +68,7 @@ async def post_readings(
             # Insert each reading
             for i in range(len(readings.timestamps)):
                 delta_t = readings.timestamps[i] - readings.now
-                now = int(time.time())
-                absolute_timestamp = now + delta_t
+                absolute_timestamp = int(time.time()) + delta_t
                 await cur.execute(
                     """INSERT INTO readings (mac, timestamp, humidity, temperature, battery)
                     VALUES (%s, to_timestamp(%s), %s, %s, %s)
