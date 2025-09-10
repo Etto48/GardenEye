@@ -1,10 +1,19 @@
 @import './base.css';
+@import './components.css';
+@import './utilities.css';
+@import './animations.css';
 
 #app {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
+  min-height: 100vh;
+}
+
+/* Ensure main content has proper spacing for fixed header */
+main {
+  padding-top: 80px;
 }
 
 a,
@@ -22,14 +31,15 @@ a,
 }
 
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: block;
     padding: 0 2rem;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  
+  main {
+    padding-top: 80px;
   }
 }

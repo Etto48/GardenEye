@@ -7,9 +7,10 @@ import os
 
 import psycopg
 
-from models import ReadingsProps
+from models import LatestReadingProps, ReadingsProps, SensorProps
 
 API_KEY = os.getenv("API_KEY")
+MAX_LATENCY = 86400  # 24 hours in seconds
 
 logger = logging.getLogger(__name__)
 
@@ -131,3 +132,43 @@ async def get_readings(
             "battery": battery,
             "now": now
         }
+    
+@api.get(f"/sensors", response_model=list[SensorProps])
+async def get_sensors(request: fastapi.Request):
+    """
+    Get all sensors with their latest readings (if available).
+    """
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
+        await cur.execute("""
+            SELECT s.mac, s.name, 
+                   EXTRACT(EPOCH FROM r.timestamp) AS timestamp, 
+                   r.humidity, r.temperature, r.battery
+            FROM sensors s
+            LEFT JOIN LATERAL (
+                SELECT * FROM readings 
+                WHERE readings.mac = s.mac 
+                ORDER BY readings.timestamp DESC 
+                LIMIT 1
+            ) r ON true
+            ORDER BY s.mac
+        """)
+        rows = await cur.fetchall()
+        result = []
+        for row in rows:
+            latest_reading = None
+            if row['timestamp'] is not None:
+                latest_reading = LatestReadingProps(
+                    timestamp=int(row['timestamp']),
+                    humidity=row['humidity'],
+                    temperature=row['temperature'],
+                    battery=row['battery']
+                )
+            
+            result.append(SensorProps(
+                mac=row['mac'],
+                name=row['name'],
+                online=(int(time.time()) - int(row['timestamp']) <= MAX_LATENCY) if row['timestamp'] is not None else False,
+                latest_reading=latest_reading
+            ))
+        return result
