@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 import pydantic
 
 class ReadingsProps(pydantic.BaseModel):
@@ -27,3 +27,8 @@ class LatestReadingProps(pydantic.BaseModel):
     humidity: float
     temperature: float
     battery: float
+
+class InfoProps(pydantic.BaseModel):
+    title: Optional[str] = None
+    content: str
+    level: Literal['info', 'warning', 'error'] = 'info'

@@ -7,7 +7,7 @@ import os
 
 import psycopg
 
-from models import LatestReadingProps, ReadingsProps, SensorProps
+from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps
 
 API_KEY = os.getenv("API_KEY")
 MAX_LATENCY = 86400  # 24 hours in seconds
@@ -174,4 +174,34 @@ async def get_sensors(request: fastapi.Request):
                 online=(int(time.time()) - int(row['timestamp']) <= MAX_LATENCY) if row['timestamp'] is not None else False,
                 latest_reading=latest_reading
             ))
+        return result
+
+@api.get(f"/info", response_model=list[InfoProps])
+async def get_info(request: fastapi.Request):
+    """
+    Get information about the system.
+    """
+    result = []
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
+        await cur.execute("SELECT COUNT(*) AS count FROM sensors")
+        total_nodes = (await cur.fetchone())['count']
+        await cur.execute("""
+            SELECT COUNT(*) AS count 
+            FROM sensors s
+            JOIN readings r ON s.mac = r.mac
+            WHERE EXTRACT(EPOCH FROM r.timestamp) >= %s
+            GROUP BY s.mac
+        """, (int(time.time()) - MAX_LATENCY,))
+        online_nodes = len(await cur.fetchall())
+        offline_nodes = total_nodes - online_nodes
+        result.append(InfoProps(
+            title="Online Sensors",
+            content=f"{online_nodes}",
+        ))
+        result.append(InfoProps(
+            title="Offline Sensors",
+            content=f"{offline_nodes}",
+            level="error" if offline_nodes > 0 else "info"
+        ))
         return result

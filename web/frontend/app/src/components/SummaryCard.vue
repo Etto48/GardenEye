@@ -2,12 +2,12 @@
 defineProps<{
     title?: string,
     content: string,
-    type: 'info' | 'warning' | 'error'
+    level: 'info' | 'warning' | 'error'
 }>();
 </script>
 
 <template>
-    <div class="card summary-card hover-lift animate-fade-in" :class="`summary-card-${type}`">
+    <div class="card summary-card hover-lift animate-fade-in" :class="`summary-card-${level}`">
         <h3 v-if="title != null">{{ title }}</h3>
         <p>{{ content }}</p>
     </div>
