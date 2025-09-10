@@ -33,6 +33,29 @@ def verify_period(period: Optional[int]):
 async def get_ping():
     return {"message": "Pong"}
 
+@api.post("/register", responses={200: {"description": "Success"}})
+async def post_register(request: fastapi.Request, mac: str = fastapi.Header(..., description="The MAC address of the sensor"), authorization: str = fastapi.Header(..., description="Bearer token for authorization")):
+    """
+    Endpoint to register a new sensor node.
+    Does nothing if the sensor is already registered.
+    """
+    try:
+        scheme, token = authorization.split()
+    except ValueError:
+        raise fastapi.HTTPException(status_code=401, detail="Malformed header")
+    if scheme.lower() != "bearer":
+        raise fastapi.HTTPException(status_code=401, detail="Invalid auth scheme")
+    verify_token(token)
+    db: psycopg.AsyncConnection = request.app.state.db
+    if mac is None:
+        return fastapi.Response(status_code=400, content="Missing X-MAC-Address header")
+    # Check if MAC address is valid (basic check)
+    verify_mac(mac)
+    async with db.cursor() as cur:
+        await cur.execute("INSERT INTO sensors (mac) VALUES (%s) ON CONFLICT (mac) DO NOTHING", (mac,))
+        await db.commit()
+    return fastapi.Response(status_code=200)
+
 @api.post("/readings", responses={
     200: {"description": "Readings accepted"},
     400: {"description": "Invalid request"},

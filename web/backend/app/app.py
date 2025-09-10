@@ -22,5 +22,5 @@ async def lifespan(app: fastapi.FastAPI):
     await app.state.db.close()
     logger.info("Database connection closed.")
 
-app = fastapi.FastAPI(lifespan=lifespan)
+app = fastapi.FastAPI(lifespan=lifespan, docs_url="/api/docs", redoc_url="/api/redoc", openapi_url="/api/openapi.json")
 app.include_router(api)
