@@ -34,6 +34,14 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --color-info-1: #047857;
+  --color-info-2: #16a34a;
+  --color-warning-1: #ea580c;
+  --color-warning-2: #eab308;
+  --color-error-1: #be123c;
+  --color-error-2: #dc2626;
+  
 }
 
 /* Force dark mode for testing - remove this if you want auto-detection */
@@ -60,6 +68,13 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+
+    --color-info-1: #5fce5d;
+    --color-info-2: #0afcec;
+    --color-warning-1: #ff8128;
+    --color-warning-2: #eefa15;
+    --color-error-1: #ff2d2d;
+    --color-error-2: #f43fa0;
   }
 }
 
