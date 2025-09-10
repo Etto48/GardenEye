@@ -19,7 +19,6 @@ const fetchInfo = async () => {
         }
         
         const data = await response.json()
-        console.log(data)
         info.value = data
     } catch (err) {
         error.value = err instanceof Error ? err.message : 'Failed to fetch sensors'
