@@ -1,0 +1,13 @@
+FROM timescale/timescaledb:2.22.0-pg17
+
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_PORT
+
+ENV POSTGRES_USER=$DB_USER
+ENV POSTGRES_PASSWORD=$DB_PASSWORD
+ENV POSTGRES_PORT=$DB_PORT
+
+ENV PGDATA=/pgdata
+
+COPY ./init-db.sql /docker-entrypoint-initdb.d/

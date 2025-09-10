@@ -1,0 +1,56 @@
+services:
+  frontend:
+    build:
+      context: ../web/frontend
+      dockerfile: Dockerfile
+    image: ${FRONTEND_HOST}
+    container_name: ${FRONTEND_HOST}
+    env_file:
+      - ./public.env
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    volumes:
+      - ../web/frontend/app:/app
+  backend:
+    build:
+      context: ../web/backend
+      dockerfile: Dockerfile
+    image: ${BACKEND_HOST}
+    container_name: ${BACKEND_HOST}
+    env_file:
+      - ./private.env
+      - ./public.env
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ../web/backend/app:/app:ro
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    build:
+      context: ../web/db
+      dockerfile: Dockerfile
+      args:
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_PORT=${DB_PORT}
+    image: ${DB_HOST}
+    container_name: ${DB_HOST}
+    env_file:
+      - ./public.env
+      - ./private.env
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - db_data:/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
+    name: ${DB_VOLUME_NAME}
+    
