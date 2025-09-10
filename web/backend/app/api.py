@@ -28,6 +28,10 @@ def verify_period(period: Optional[int]):
     if period is not None and (period <= 0 or period > time.time()):
         raise fastapi.HTTPException(status_code=400, detail="Invalid period value")
 
+@api.get("/ping", responses={200: {"description": "Pong"}})
+async def get_ping():
+    return {"message": "Pong"}
+
 @api.post("/readings", responses={
     200: {"description": "Readings accepted"},
     400: {"description": "Invalid request"},
