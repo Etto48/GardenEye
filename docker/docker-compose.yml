@@ -49,6 +49,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  proxy:
+    build:
+      context: ../web/proxy
+      dockerfile: Dockerfile
+      args:
+        - BACKEND_HOST=${BACKEND_HOST}
+        - BACKEND_PORT=${BACKEND_PORT}
+        - FRONTEND_HOST=${FRONTEND_HOST}
+        - FRONTEND_PORT=${FRONTEND_PORT}
+    image: ${PROXY_HOST}
+    container_name: ${PROXY_HOST}
+    env_file:
+      - ./public.env
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   db_data:
