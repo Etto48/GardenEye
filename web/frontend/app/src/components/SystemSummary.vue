@@ -41,17 +41,10 @@ defineExpose({
 </script>
 
 <template>
-    <div class="system-summary flex flex-row">
+    <div class="flex flex-row justify-center flex-wrap w-full gap-md mb-3">
         <SummaryCard v-for="item in info" :key="item.title ? item.title : item.content" :title="item.title" :content="item.content" :level="item.level" />
     </div>
 </template>
 
 <style scoped>
-.system-summary {
-    gap: 1rem;
-    margin-bottom: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-}
 </style>

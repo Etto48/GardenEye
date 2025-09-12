@@ -27,8 +27,8 @@ const refreshDash = async () => {
 <template>
     <div class="dashboard p-4 max-w-xl mx-auto">
         <div class="text-center mb-4">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle">Monitor your garden sensors in real-time</p>
+            <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Dashboard</h1>
+            <p class="text-lg m-0" style="opacity: 0.8;">Monitor your garden sensors in real-time</p>
         </div>
         <SystemSummary ref="systemSummaryRef" />
         <SensorList ref="sensorListRef" />
@@ -45,25 +45,12 @@ const refreshDash = async () => {
 </template>
 
 <style scoped>
-.dashboard-title {
-    color: var(--color-heading);
-    margin: 0 0 0.5rem 0;
-    font-size: 2.5rem;
-}
-
-.dashboard-subtitle {
-    color: var(--color-text);
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.8;
-}
-
 @media (max-width: 768px) {
-    .dashboard-title {
+    .dashboard h1 {
         font-size: 2rem;
     }
     
-    .dashboard-subtitle {
+    .dashboard p {
         font-size: 1rem;
     }
 }

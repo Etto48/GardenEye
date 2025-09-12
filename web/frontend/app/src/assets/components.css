@@ -46,6 +46,54 @@
   border-color: var(--color-border-hover);
 }
 
+.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+}
+
+.btn-accent:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+}
+
+.btn-accent:active:not(:disabled) {
+  background-color: var(--color-accent-active);
+}
+
+.btn-outline {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+.btn-outline.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-full-width {
+  width: 100%;
+}
+
+.btn-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Card Components */
 .card {
   background-color: var(--color-background-soft);
@@ -140,6 +188,43 @@
 .section-header {
   border-bottom: 2px solid var(--color-background-mute);
   padding: 10px;
+}
+
+/* Empty State Components */
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--color-text-soft);
+}
+
+.empty-state-large {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-soft);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-soft);
+  opacity: 0.6;
+}
+
+.empty-icon-large {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-soft);
+  opacity: 0.6;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.empty-text-large {
+  margin: 0;
+  font-size: 1rem;
 }
 
 /* Floating Reload Button */

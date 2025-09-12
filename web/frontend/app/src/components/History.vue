@@ -347,27 +347,27 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
 <template>
   <div class="history p-4 max-w-6xl mx-auto">
     <div class="header-section mb-4">
-      <button @click="goBack" class="back-button" title="Back to Dashboard">
+      <button @click="goBack" class="btn btn-outline btn-small btn-with-icon absolute left-0" title="Back to Dashboard">
         <i class="bi bi-arrow-left"></i>
         Back
       </button>
       <div class="text-center">
-        <h1 class="history-title">Sensor History</h1>
-        <p class="history-subtitle">{{ displayName }}</p>
+        <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Sensor History</h1>
+        <p class="text-base font-medium text-soft m-0">{{ displayName }}</p>
       </div>
     </div>
 
     <!-- Time period selector -->
-    <div class="time-selector mb-4">
-      <h3 class="selector-title">Time Range</h3>
+    <div class="card time-selector mb-4">
+      <h3 class="text-xl font-medium text-heading m-0 mb-3">Time Range</h3>
       <div class="button-group">
         <button
           v-for="(period, key) in TIME_PERIODS"
           :key="key"
           @click="changePeriod(key as TimePeriodKey)"
           :class="[
-            'period-button',
-            { 'active': selectedPeriod === key }
+            'btn', 'btn-outline', 'btn-small',
+            { 'btn-accent': selectedPeriod === key }
           ]"
           :disabled="loading"
         >
@@ -390,7 +390,7 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
         <i class="bi bi-exclamation-triangle"></i>
       </div>
       <p>{{ error }}</p>
-      <button @click="fetchData" class="retry-button">
+      <button @click="fetchData" class="btn btn-accent btn-small">
         Retry
       </button>
     </div>
@@ -404,7 +404,7 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
     </div>
 
     <!-- Charts -->
-    <div v-else class="charts-container">
+    <div v-else class="card charts-container">
       <!-- Temperature Chart -->
       <div class="chart-container">
         <div class="chart-header first-chart">
@@ -497,46 +497,11 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   padding: 1rem;
 }
 
-.selector-title {
-  color: var(--color-heading);
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
 .button-group {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.period-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-background);
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.period-button:hover:not(:disabled) {
-  background: var(--color-background-soft);
-  border-color: var(--color-accent);
-}
-
-.period-button.active {
-  background: var(--color-accent);
-  color: white;
-  border-color: var(--color-accent);
-}
-
-.period-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .loading-container,
@@ -559,27 +524,9 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   color: var(--color-error);
 }
 
-.retry-button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.retry-button:hover {
-  background: var(--color-accent-dark);
-}
-
 .charts-container {
   display: flex;
   flex-direction: column;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
 }
 
 .chart-container {
@@ -630,10 +577,6 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   .button-group {
     flex-direction: column;
     align-items: stretch;
-  }
-  
-  .period-button {
-    width: 100%;
   }
   
   .chart-container {
