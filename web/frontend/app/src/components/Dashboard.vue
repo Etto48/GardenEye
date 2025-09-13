@@ -25,7 +25,7 @@ const refreshDash = async () => {
 </script>
 
 <template>
-    <div class="dashboard p-4 max-w-xl mx-auto">
+    <div class="dashboard py-4 max-w-xl mx-auto">
         <div class="text-center mb-4">
             <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Dashboard</h1>
             <p class="text-lg m-0" style="opacity: 0.8;">Monitor your garden sensors in real-time</p>

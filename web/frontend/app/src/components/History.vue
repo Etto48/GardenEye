@@ -345,12 +345,8 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
 </script>
 
 <template>
-  <div class="history p-4 max-w-6xl mx-auto">
+  <div class="history py-4 max-w-6xl mx-auto">
     <div class="header-section mb-4">
-      <button @click="goBack" class="btn btn-outline btn-small btn-with-icon absolute left-0" title="Back to Dashboard">
-        <i class="bi bi-arrow-left"></i>
-        Back
-      </button>
       <div class="text-center">
         <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Sensor History</h1>
         <p class="text-base font-medium text-soft m-0">{{ displayName }}</p>
@@ -358,7 +354,12 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
     </div>
 
     <!-- Time period selector -->
-    <div class="card time-selector mb-4">
+    <button @click="goBack" class="btn btn-outline btn-small btn-with-icon mb-3" title="Back to Dashboard">
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </button>
+
+    <div class="card time-selector mb-3">
       <h3 class="text-xl font-medium text-heading m-0 mb-3">Time Range</h3>
       <div class="button-group">
         <button
@@ -451,29 +452,6 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.back-button {
-  position: absolute;
-  left: 0;
-  padding: 0.5rem 1rem;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.back-button:hover {
-  background: var(--color-accent);
-  color: white;
-  border-color: var(--color-accent);
 }
 
 .history-title {
