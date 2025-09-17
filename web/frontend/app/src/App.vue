@@ -23,6 +23,7 @@ import { RouterLink, RouterView } from 'vue-router'
     border-bottom: 1px solid var(--color-border);
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 2rem;
 }
 
 .app-header .logo {
@@ -37,10 +38,11 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .app-header nav {
-    font-size: 12px;
     margin: 0;
     position: relative;
     top: 2px;
+    text-align: left;
+    font-size: 1rem;
 }
 
 .app-header nav a.router-link-exact-active {
@@ -59,16 +61,5 @@ import { RouterLink, RouterView } from 'vue-router'
 
 .app-header nav a:first-of-type {
     border: 0;
-}
-
-@media (min-width: 1024px) {
-    .app-header {
-        padding: 0 2rem;
-    }
-    
-    .app-header nav {
-        text-align: left;
-        font-size: 1rem;
-    }
 }
 </style>

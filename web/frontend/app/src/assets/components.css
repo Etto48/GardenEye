@@ -60,6 +60,20 @@
   background-color: var(--color-accent-active);
 }
 
+.btn-danger {
+  background-color: var(--color-error-1);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--color-error-2);
+}
+
+.btn-danger:active:not(:disabled) {
+  background-color: #cc1f1f;
+}
+
 .btn-outline {
   background-color: var(--color-background-soft);
   color: var(--color-text);
@@ -101,6 +115,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   transition: box-shadow 0.3s, border-color 0.3s;
+  position: relative;
 }
 
 .card:hover {
@@ -127,11 +142,15 @@
 
 /* Status Indicators */
 .status-indicator {
-  font-size: 1.2rem;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
   animation: pulse 2s infinite;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  text-align: center;
 }
 
 .status-indicator.online {

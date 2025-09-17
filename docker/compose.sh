@@ -8,6 +8,8 @@ if [ "$MODE" = "dev" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml"
 elif [ "$MODE" = "prod" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml -f docker-compose.prod.yml"
+elif [ "$MODE" = "rm" ]; then
+    DOCKER_COMPOSE="-f docker-compose.yml -f docker-compose.prod.yml"
 else
     echo "Invalid MODE: $MODE. Use 'dev' or 'prod'."
     exit 1
@@ -19,6 +21,8 @@ function stop() {
         docker compose $DOCKER_COMPOSE $ENV_FILES down
     elif [ "$MODE" = "prod" ]; then
         docker compose $DOCKER_COMPOSE $ENV_FILES down
+    elif [ "$MODE" = "rm" ]; then
+        docker compose $DOCKER_COMPOSE $ENV_FILES down -v --rmi all --remove-orphans
     fi
 }
 
@@ -27,6 +31,9 @@ function start() {
         docker compose $DOCKER_COMPOSE $ENV_FILES up --build
     elif [ "$MODE" = "prod" ]; then
         docker compose $DOCKER_COMPOSE $ENV_FILES up --build
+    elif [ "$MODE" = "rm" ]; then
+        # do nothing
+        echo "Removing all containers, images, volumes, and networks..."
     fi
 }
 

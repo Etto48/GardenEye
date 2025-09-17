@@ -7,15 +7,15 @@
 }
 
 @keyframes pulse-online {
-  0% { color: var(--color-online-1); }
-  50% { color: var(--color-online-2); }
-  100% { color: var(--color-online-1); }
+  0% { background-color: var(--color-online-1); }
+  50% { background-color: var(--color-online-2); }
+  100% { background-color: var(--color-online-1); }
 }
 
 @keyframes pulse-offline {
-  0% { color: var(--color-offline-1); }
-  50% { color: var(--color-offline-2); }
-  100% { color: var(--color-offline-1); }
+  0% { background-color: var(--color-offline-1); }
+  50% { background-color: var(--color-offline-2); }
+  100% { background-color: var(--color-offline-1); }
 }
 
 @keyframes fadeIn {

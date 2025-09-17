@@ -8,6 +8,7 @@ export interface LatestReading {
 export interface Sensor {
   mac: string
   name?: string
+  has_photo: boolean
   online: boolean
   latest_reading?: LatestReading
 }

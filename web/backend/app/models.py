@@ -20,6 +20,7 @@ class SensorProps(pydantic.BaseModel):
     mac: str
     online: bool
     name: Optional[str] = None
+    has_photo: bool = False
     latest_reading: Optional['LatestReadingProps'] = None
 
 class LatestReadingProps(pydantic.BaseModel):
@@ -32,3 +33,6 @@ class InfoProps(pydantic.BaseModel):
     title: Optional[str] = None
     content: str
     level: Literal['info', 'warning', 'error'] = 'info'
+
+class SensorSettingsProps(pydantic.BaseModel):
+    name: Optional[str] = None

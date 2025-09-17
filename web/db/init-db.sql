@@ -1,6 +1,7 @@
 create table sensors (
     mac varchar(17) primary key,
-    name varchar(50) default null
+    name varchar(50) default null,
+    has_photo boolean default false
 );
 
 create table readings (

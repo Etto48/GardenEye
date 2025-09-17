@@ -24,6 +24,7 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ../web/backend/app:/app:ro
+      - uploads:/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -71,4 +72,6 @@ services:
 volumes:
   db_data:
     name: ${DB_VOLUME_NAME}
+  uploads:
+    name: ${UPLOADS_VOLUME_NAME}
     

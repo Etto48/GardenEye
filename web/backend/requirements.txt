@@ -2,3 +2,4 @@ uvicorn
 fastapi
 psycopg[binary,pool]
 colorlog
+python-multipart

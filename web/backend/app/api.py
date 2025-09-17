@@ -1,18 +1,28 @@
 import re
 from typing import Optional
 import fastapi
+from fastapi import File, UploadFile, HTTPException
+from fastapi.responses import FileResponse
 import logging
 import time
 import os
+import io
+from pathlib import Path
 
 import psycopg
 
-from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps
+from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps
 
 API_KEY = os.getenv("API_KEY")
 MAX_LATENCY = 86400  # 24 hours in seconds
 
+UPLOADS_PATH = os.getenv("UPLOADS_PATH", "/uploads")
+PHOTOS_DIR = Path(f"{UPLOADS_PATH}/photos")
+
 logger = logging.getLogger(__name__)
+
+# Ensure photos directory exists
+PHOTOS_DIR.mkdir(exist_ok=True)
 
 api = fastapi.APIRouter(prefix="/api")
 
@@ -127,19 +137,73 @@ async def get_readings(
     async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:  
         if period is None:
             await cur.execute(
-                """SELECT mac, EXTRACT(EPOCH FROM timestamp) as timestamp, humidity, temperature, battery 
-                   FROM readings 
-                   WHERE mac = %s
-                   ORDER BY timestamp DESC""",
-                (mac,)
+                """WITH bounds AS (
+                    SELECT
+                        min(timestamp) AS start_time,
+                        max(timestamp) AS end_time,
+                        count(*) AS total_points
+                    FROM readings
+                    WHERE mac = %s
+                ),
+                bucket AS (
+                    SELECT
+                        GREATEST(
+                            (EXTRACT(EPOCH FROM (end_time - start_time)) / 100)::int,
+                            1
+                        ) * INTERVAL '1 second' AS bucket_width,
+                        start_time,
+                        end_time
+                    FROM bounds
+                )
+                SELECT
+                    r.mac,
+                    EXTRACT(EPOCH FROM time_bucket(bucket.bucket_width, r.timestamp, bucket.start_time)) AS timestamp,
+                    avg(r.humidity)    AS humidity,
+                    avg(r.temperature) AS temperature,
+                    avg(r.battery)     AS battery
+                FROM readings r
+                CROSS JOIN bucket
+                WHERE r.mac = %s
+                AND r.timestamp BETWEEN bucket.start_time AND bucket.end_time
+                GROUP BY r.mac, time_bucket(bucket.bucket_width, r.timestamp, bucket.start_time)
+                ORDER BY timestamp DESC;""",
+                (mac, mac)
             )
         else:
             await cur.execute(
-                """SELECT mac, EXTRACT(EPOCH FROM timestamp) as timestamp, humidity, temperature, battery 
-                   FROM readings 
-                   WHERE mac = %s AND timestamp >= to_timestamp(%s)
-                   ORDER BY timestamp DESC""",
-                (mac, int(time.time()) - period)
+                """WITH bounds AS (
+                    SELECT
+                        min(timestamp) AS start_time,
+                        max(timestamp) AS end_time,
+                        count(*) AS total_points
+                    FROM readings
+                    WHERE mac = %s
+                    AND timestamp >= to_timestamp(%s)
+                ),
+                bucket AS (
+                    SELECT
+                        GREATEST(
+                            (EXTRACT(EPOCH FROM (end_time - start_time)) / 100)::int,
+                            1
+                        ) * INTERVAL '1 second' AS bucket_width,
+                        start_time,
+                        end_time
+                    FROM bounds
+                )
+                SELECT
+                    r.mac,
+                    EXTRACT(EPOCH FROM time_bucket(bucket.bucket_width, r.timestamp, bucket.start_time)) AS timestamp,
+                    avg(r.humidity)    AS humidity,
+                    avg(r.temperature) AS temperature,
+                    avg(r.battery)     AS battery
+                FROM readings r
+                CROSS JOIN bucket
+                WHERE r.mac = %s
+                AND r.timestamp BETWEEN bucket.start_time AND bucket.end_time
+                GROUP BY r.mac, time_bucket(bucket.bucket_width, r.timestamp, bucket.start_time)
+                ORDER BY timestamp DESC;
+                """,
+                (mac, int(time.time()) - period, mac)
             )
 
         rows = await cur.fetchall()
@@ -158,26 +222,68 @@ async def get_readings(
             "now": now
         }
     
-@api.get(f"/sensors", response_model=list[SensorProps])
-async def get_sensors(request: fastapi.Request):
+@api.delete("/readings", responses={
+    200: {"description": "Readings deleted successfully"},
+    400: {"description": "Invalid request"},
+    404: {"description": "No readings found"}
+})
+async def delete_readings(
+    request: fastapi.Request,
+    mac: str = fastapi.Query(..., description="The MAC address of the sensor")
+):
+    """
+    Delete all readings for a specific MAC address.
+    """
+    verify_mac(mac)
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor() as cur:
+        await cur.execute("SELECT 1 FROM readings WHERE mac = %s LIMIT 1", (mac,))
+        if await cur.fetchone() is None:
+            raise fastapi.HTTPException(status_code=404, detail="No readings found for the specified MAC address")
+        await cur.execute("DELETE FROM readings WHERE mac = %s", (mac,))
+        await db.commit()
+    return fastapi.Response(status_code=200)
+
+@api.get(f"/sensors", response_model=list[SensorProps] | SensorProps)
+async def get_sensors(
+    request: fastapi.Request,
+    mac: Optional[str] = fastapi.Query(None, description="The MAC address of the sensor to filter by")
+):
     """
     Get all sensors with their latest readings (if available).
     """
     db: psycopg.AsyncConnection = request.app.state.db
     async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
-        await cur.execute("""
-            SELECT s.mac, s.name, 
-                   EXTRACT(EPOCH FROM r.timestamp) AS timestamp, 
-                   r.humidity, r.temperature, r.battery
-            FROM sensors s
-            LEFT JOIN LATERAL (
-                SELECT * FROM readings 
-                WHERE readings.mac = s.mac 
-                ORDER BY readings.timestamp DESC 
-                LIMIT 1
-            ) r ON true
-            ORDER BY s.mac
-        """)
+        if mac:
+            verify_mac(mac)
+            await cur.execute("""
+                SELECT s.mac, s.name, s.has_photo,
+                       EXTRACT(EPOCH FROM r.timestamp) AS timestamp, 
+                       r.humidity, r.temperature, r.battery
+                FROM sensors s
+                LEFT JOIN LATERAL (
+                    SELECT * FROM readings 
+                    WHERE readings.mac = s.mac 
+                    ORDER BY readings.timestamp DESC 
+                    LIMIT 1
+                ) r ON true
+                WHERE s.mac = %s
+                ORDER BY s.mac
+            """, (mac,))
+        else:
+            await cur.execute("""
+                SELECT s.mac, s.name, s.has_photo,
+                    EXTRACT(EPOCH FROM r.timestamp) AS timestamp, 
+                    r.humidity, r.temperature, r.battery
+                FROM sensors s
+                LEFT JOIN LATERAL (
+                    SELECT * FROM readings 
+                    WHERE readings.mac = s.mac 
+                    ORDER BY readings.timestamp DESC 
+                    LIMIT 1
+                ) r ON true
+                ORDER BY s.mac
+            """)
         rows = await cur.fetchall()
         result = []
         for row in rows:
@@ -193,10 +299,42 @@ async def get_sensors(request: fastapi.Request):
             result.append(SensorProps(
                 mac=row['mac'],
                 name=row['name'],
+                has_photo=row['has_photo'],
                 online=(int(time.time()) - int(row['timestamp']) <= MAX_LATENCY) if row['timestamp'] is not None else False,
                 latest_reading=latest_reading
             ))
-        return result
+        if mac is not None and len(result) == 0:
+            return fastapi.Response(status_code=404, content="Sensor not found")
+        elif mac is not None:
+            return result[0]
+        else:
+            return result
+
+@api.post(
+    "/sensors/{mac}/settings",      
+)
+async def post_sensor_settings(
+    request: fastapi.Request,
+    mac: str = fastapi.Path(..., description="The MAC address of the sensor"),
+    settings: SensorSettingsProps = fastapi.Body(..., description="The sensor settings to update")
+):
+    """
+    Update settings for a specific sensor.
+    """
+    verify_mac(mac)
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor() as cur:
+        # Check if sensor exists
+        await cur.execute("SELECT mac FROM sensors WHERE mac = %s", (mac,))
+        if await cur.fetchone() is None:
+            raise HTTPException(status_code=404, detail="Sensor not found")
+        
+        # Update sensor settings
+        await cur.execute("UPDATE sensors SET name = %s WHERE mac = %s", (settings.name, mac))
+        
+        await db.commit()
+
+    return fastapi.Response(status_code=200)
 
 @api.get(f"/info", response_model=list[InfoProps])
 async def get_info(request: fastapi.Request):
@@ -227,3 +365,190 @@ async def get_info(request: fastapi.Request):
             level="error" if offline_nodes > 0 else "info"
         ))
         return result
+
+@api.post("/sensors/{mac}/photo", responses={
+    200: {"description": "Photo uploaded successfully"},
+    400: {"description": "Invalid request or file format"},
+    404: {"description": "Sensor not found"}
+})
+async def upload_sensor_photo(
+    request: fastapi.Request,
+    mac: str = fastapi.Path(..., description="The MAC address of the sensor"),
+    photo: UploadFile = File(..., description="The photo file to upload"),
+):
+    """
+    Upload a photo for a specific sensor.
+    """
+    verify_mac(mac)
+    og_mac = mac
+    mac = mac.replace(":", "").lower()
+
+    # Check if sensor exists
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor() as cur:
+        await cur.execute("SELECT mac FROM sensors WHERE mac = %s", (og_mac,))
+        if await cur.fetchone() is None:
+            raise HTTPException(status_code=404, detail="Sensor not found")
+
+    # Validate file type
+    if not photo.content_type or not photo.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    # Get file extension from content type
+    content_type_to_ext = {
+        'image/jpeg': '.jpg',
+        'image/jpg': '.jpg',
+        'image/png': '.png',
+        'image/webp': '.webp',
+        'image/gif': '.gif'
+    }
+    
+    file_ext = content_type_to_ext.get(photo.content_type)
+    if not file_ext:
+        raise HTTPException(status_code=400, detail="Unsupported image format")
+
+    # Save file with MAC address as filename
+    filename = f"{mac}{file_ext}"
+    file_path = PHOTOS_DIR / filename
+
+    try:
+        # Remove existing photo if it exists
+        for existing_file in PHOTOS_DIR.glob(f"{mac}.*"):
+            existing_file.unlink()
+
+        # Save new photo
+        with open(file_path, "wb") as buffer:
+            content = await photo.read()
+            buffer.write(content)
+
+        # Update database to set has_photo = true
+        async with db.cursor() as cur:
+            await cur.execute("UPDATE sensors SET has_photo = true WHERE mac = %s", (og_mac,))
+            await db.commit()
+
+        return {"message": "Photo uploaded successfully", "filename": filename}
+
+    except Exception as e:
+        logger.error(f"Error uploading photo for sensor {og_mac}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload photo")
+
+@api.get("/sensors/{mac}/photo", responses={
+    200: {"description": "Photo file", "content": {"image/*": {}}},
+    404: {"description": "Photo not found"}
+})
+async def get_sensor_photo(mac: str):
+    """
+    Get the photo for a specific sensor.
+    """
+    verify_mac(mac)
+    mac = mac.replace(":", "").lower()
+
+    # Find photo file for this MAC address
+    photo_files = list(PHOTOS_DIR.glob(f"{mac}.*"))
+    
+    if not photo_files:
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    photo_path = photo_files[0]  # Take the first match
+    
+    if not photo_path.exists():
+        raise HTTPException(status_code=404, detail="Photo file not found")
+
+    # Determine media type from file extension
+    ext_to_media_type = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg', 
+        '.png': 'image/png',
+        '.webp': 'image/webp',
+        '.gif': 'image/gif'
+    }
+    
+    media_type = ext_to_media_type.get(photo_path.suffix.lower(), 'image/jpeg')
+    
+    return FileResponse(photo_path, media_type=media_type)
+
+@api.delete("/sensors/{mac}/photo", responses={
+    200: {"description": "Photo deleted successfully"},
+    404: {"description": "Photo not found"}
+})
+async def delete_sensor_photo(
+    request: fastapi.Request,
+    mac: str,
+):
+    """
+    Delete the photo for a specific sensor.
+    """
+    verify_mac(mac)
+    og_mac = mac
+    mac = mac.replace(":", "").lower()
+
+    # Find and delete photo file
+    photo_files = list(PHOTOS_DIR.glob(f"{mac}.*"))
+    
+    if not photo_files:
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    try:
+        # Delete all photo files for this MAC (in case there are multiple)
+        for photo_path in photo_files:
+            photo_path.unlink()
+
+        # Update database to set has_photo = false
+        db: psycopg.AsyncConnection = request.app.state.db
+        async with db.cursor() as cur:
+            await cur.execute("UPDATE sensors SET has_photo = false WHERE mac = %s", (og_mac,))
+            await db.commit()
+
+        return {"message": "Photo deleted successfully"}
+
+    except Exception as e:
+        logger.error(f"Error deleting photo for sensor {og_mac}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete photo")
+    
+@api.get("/readings/download", responses={
+    200: {"description": "CSV file"},
+    400: {"description": "Invalid request"},
+    404: {"description": "No readings found"}})
+async def get_readings_download(
+    request: fastapi.Request,
+    mac: str = fastapi.Query(..., description="The MAC address of the sensor"),
+    period: int = fastapi.Query(None, description="The time period in seconds to look back from the current time, omitting this retrieves all available data")
+):
+    """
+    Download sensor readings as a CSV file for a specific MAC address and time period.
+    """
+    verify_mac(mac)
+    verify_period(period)
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:  
+        if period is None:
+            await cur.execute(
+                """SELECT mac, to_char(timestamp, 'YYYY-MM-DD HH24:MI:SS') as timestamp, humidity, temperature, battery 
+                   FROM readings 
+                   WHERE mac = %s
+                   ORDER BY timestamp DESC""",
+                (mac,)
+            )
+        else:
+            await cur.execute(
+                """SELECT mac, to_char(timestamp, 'YYYY-MM-DD HH24:MI:SS') as timestamp, humidity, temperature, battery 
+                   FROM readings 
+                   WHERE mac = %s AND timestamp >= to_timestamp(%s)
+                   ORDER BY timestamp DESC""",
+                (mac, int(time.time()) - period)
+            )
+
+        rows = await cur.fetchall()
+        if not rows:
+            raise fastapi.HTTPException(status_code=404, detail="No readings found for the specified MAC address and period")
+        
+        # Create CSV content
+        csv_content = "mac,timestamp,humidity,temperature,battery\n"
+        for row in rows:
+            csv_content += f"{row['mac']},{row['timestamp']},{row['humidity']},{row['temperature']},{row['battery']}\n"
+        
+        io_stream = io.StringIO(csv_content)
+        headers = {
+            'Content-Disposition': f'attachment; filename="{mac.replace(":", "").lower()}_readings.csv"'
+        }
+        return fastapi.responses.StreamingResponse(io_stream, media_type="text/csv", headers=headers)
