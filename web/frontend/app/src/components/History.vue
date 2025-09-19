@@ -230,12 +230,6 @@ const getChartConfig = (metric: 'temperature' | 'humidity' | 'battery'): ChartCo
         battery: 'V'
     }
     
-    const titles = {
-        temperature: 'Temperature',
-        humidity: 'Humidity',
-        battery: 'Battery Voltage'
-    }
-    
     const themeColors = getThemeColors()
     
     return {

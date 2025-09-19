@@ -15,6 +15,8 @@ from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, Se
 
 API_KEY = os.getenv("API_KEY")
 MAX_LATENCY = 86400  # 24 hours in seconds
+WARNING_CHARGE_VOLTAGE = 3.3  # Voltage below which battery is considered low
+CRITICAL_CHARGE_VOLTAGE = 3.0  # Voltage below which battery is considered critical
 
 UPLOADS_PATH = os.getenv("UPLOADS_PATH", "/uploads")
 PHOTOS_DIR = Path(f"{UPLOADS_PATH}/photos")
@@ -310,6 +312,32 @@ async def get_sensors(
         else:
             return result
 
+@api.delete("/sensors/{mac}", responses={
+    200: {"description": "Sensor deleted successfully"},
+    404: {"description": "Sensor not found"}
+})
+async def delete_sensor(
+    request: fastapi.Request,
+    mac: str = fastapi.Path(..., description="The MAC address of the sensor to delete")
+):
+    """
+    Delete a specific sensor and all its associated readings.
+    """
+    verify_mac(mac)
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor() as cur:
+        await cur.execute("SELECT 1 FROM sensors WHERE mac = %s LIMIT 1", (mac,))
+        if await cur.fetchone() is None:
+            raise fastapi.HTTPException(status_code=404, detail="Sensor not found")
+        # Delete associated photo if it exists
+        mac_clean = mac.replace(":", "").lower()
+        for photo_file in PHOTOS_DIR.glob(f"{mac_clean}.*"):
+            photo_file.unlink()
+        await cur.execute("DELETE FROM sensors WHERE mac = %s", (mac,))
+        # Cascade delete will remove associated readings
+        await db.commit()
+    return fastapi.Response(status_code=200)
+
 @api.post(
     "/sensors/{mac}/settings",      
 )
@@ -344,26 +372,59 @@ async def get_info(request: fastapi.Request):
     result = []
     db: psycopg.AsyncConnection = request.app.state.db
     async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
-        await cur.execute("SELECT COUNT(*) AS count FROM sensors")
-        total_nodes = (await cur.fetchone())['count']
+        online_sensors = 0
+        offline_sensors = 0
+        low_battery_nodes = 0
+        critical_battery_nodes = 0
+        
+        # Get latest info for each sensor
         await cur.execute("""
-            SELECT COUNT(*) AS count 
-            FROM sensors s
-            JOIN readings r ON s.mac = r.mac
-            WHERE EXTRACT(EPOCH FROM r.timestamp) >= %s
-            GROUP BY s.mac
-        """, (int(time.time()) - MAX_LATENCY,))
-        online_nodes = len(await cur.fetchall())
-        offline_nodes = total_nodes - online_nodes
-        result.append(InfoProps(
-            title="Online Sensors",
-            content=f"{online_nodes}",
-        ))
-        result.append(InfoProps(
-            title="Offline Sensors",
-            content=f"{offline_nodes}",
-            level="error" if offline_nodes > 0 else "info"
-        ))
+            SELECT s.mac, s.name, s.has_photo,
+                    EXTRACT(EPOCH FROM r.timestamp) AS timestamp, 
+                    r.humidity, r.temperature, r.battery
+                FROM sensors s
+                LEFT JOIN LATERAL (
+                    SELECT * FROM readings 
+                    WHERE readings.mac = s.mac 
+                    ORDER BY readings.timestamp DESC 
+                    LIMIT 1
+                ) r ON true
+                ORDER BY s.mac
+        """)
+        latest_readings = await cur.fetchall()
+        for row in latest_readings:
+            if row['timestamp'] is not None:
+                if int(time.time()) - int(row['timestamp']) <= MAX_LATENCY:
+                    online_sensors += 1
+                else:
+                    offline_sensors += 1
+                
+                if row['battery'] < CRITICAL_CHARGE_VOLTAGE:
+                    critical_battery_nodes += 1
+                elif row['battery'] < WARNING_CHARGE_VOLTAGE:
+                    low_battery_nodes += 1
+            else:
+                offline_sensors += 1  # No readings means offline
+        if online_sensors > 0:
+            result.append(InfoProps(
+                title="Online Sensors",
+                content=str(online_sensors),
+                level="info"))
+        if offline_sensors > 0:
+            result.append(InfoProps(
+                title="Offline Sensors",
+                content=str(offline_sensors),
+                level="error"))
+        if low_battery_nodes > 0:
+            result.append(InfoProps(
+                title="Low Battery Sensors",
+                content=str(low_battery_nodes),
+                level="warning"))
+        if critical_battery_nodes > 0:
+            result.append(InfoProps(
+                title="Critical Battery Sensors",
+                content=str(critical_battery_nodes),
+                level="error"))
         return result
 
 @api.post("/sensors/{mac}/photo", responses={

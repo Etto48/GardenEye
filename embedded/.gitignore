@@ -1,4 +1,4 @@
 battery/readings.csv
 board/private.h
 schematic/schematic-backups
-schematic/fp-info-cache
+*.bak

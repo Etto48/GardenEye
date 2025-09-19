@@ -7,7 +7,10 @@ defineProps<{
 </script>
 
 <template>
-    <div class="card summary-card hover-lift animate-fade-in text-center align-content-center min-w-150 min-h-150 flex-1" :class="`summary-card-${level}`">
+    <div 
+        class="card summary-card hover-lift animate-fade-in text-center align-content-center min-w-150 min-h-150 flex-1" 
+        :class="`summary-card-${level}`"
+    >
         <h3 v-if="title != null" class="m-0 mb-1 text-xl">{{ title }}</h3>
         <p class="m-0 text-3xl font-bold">{{ content }}</p>
     </div>

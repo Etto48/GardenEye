@@ -1,6 +1,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <esp_wifi.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 #include "private.h"
 
 constexpr float MAX_V = 3.3; // max voltage for ADC, equivalent to MAX_ANALOG reading from analogRead(...)
@@ -9,8 +11,8 @@ constexpr uint16_t ANALOG_ACCURACY = 10; // number of analog reads to average
 constexpr uint16_t MAX_ANALOG = 4095; // max analog read value for 12 bit ADC
 constexpr uint64_t uS_TO_S_FACTOR = 1000000; /* Conversion factor for micro seconds to seconds */
 
-constexpr uint8_t HUMIDITY_PIN = 34; // GPIO to read humidity
-constexpr uint8_t TEMPERATURE_PIN = 35; // GPIO to read temperature
+constexpr uint8_t HUMIDITY_PIN = 35; // GPIO to read humidity
+constexpr uint8_t TEMPERATURE_PIN = 33; // GPIO to read temperature
 constexpr uint8_t BATTERY_PIN = 32; // GPIO to read battery voltage
 constexpr uint8_t SENSOR_POWER_PIN = 13; // GPIO to power the sensors
 
@@ -34,6 +36,9 @@ RTC_DATA_ATTR struct SensorReadings data[MAX_SENSOR_READINGS];
 RTC_DATA_ATTR uint64_t sensor_readings_start = 0;
 RTC_DATA_ATTR uint64_t sensor_readings_len = 0;
 RTC_DATA_ATTR uint64_t base_time = 0;
+
+OneWire one_wire(TEMPERATURE_PIN);
+DallasTemperature temperature_sensors(&one_wire);
 
 bool wifi_init() {
     WiFi.mode(WIFI_MODE_STA);
@@ -87,20 +92,24 @@ struct SensorReadings read_sensors() {
     };
 
     double h = 0;
-    double t = 0;
     double b = 0;    
     digitalWrite(SENSOR_POWER_PIN, HIGH);
-    delay(10);
+    delay(20);
+    temperature_sensors.setWaitForConversion(false);
+    temperature_sensors.setResolution(12);
+    temperature_sensors.requestTemperatures();
     for (uint64_t i = 0; i < ANALOG_ACCURACY; i++) 
     {
         h += double(analogRead(HUMIDITY_PIN))/MAX_ANALOG;
-        t += double(analogRead(TEMPERATURE_PIN))/MAX_ANALOG;
         b += double(analogRead(BATTERY_PIN))/MAX_ANALOG;
         delay(10);
     }
     ret.humidity = h/ANALOG_ACCURACY;
-    ret.temperature = t/ANALOG_ACCURACY;
     ret.battery = b/ANALOG_ACCURACY;
+    while (!temperature_sensors.isConversionComplete()) {
+        delay(10);
+    }
+    ret.temperature = temperature_sensors.getTempCByIndex(0);
 
     digitalWrite(SENSOR_POWER_PIN, LOW);
     return ret;
@@ -144,7 +153,7 @@ char *format_humidity(float humidity) {
 
 char *format_temperature(float temperature) {
     static char buf[MAX_FIELD_LENGTH];
-    snprintf(buf, MAX_FIELD_LENGTH, "%f", (temperature * MAX_V - 0.1 * MAX_V) * 100);
+    snprintf(buf, MAX_FIELD_LENGTH, "%f", temperature);
     return buf;
 }
 
@@ -326,8 +335,7 @@ void setup() {
     Serial.begin(115200);
     pinMode(SENSOR_POWER_PIN, OUTPUT);
     // Power off the wireless module
-    // wifi_sleep();
-    wifi_init(); // TODO: remove for production, waste energy
+    wifi_sleep();
     
     // Take a reading
     auto reading = read_sensors();
@@ -349,14 +357,12 @@ void setup() {
     // Go to sleep
     update_base_time();
     esp_sleep_enable_timer_wakeup(SAMPLING_INTERVAL_S * uS_TO_S_FACTOR);
-    // esp_deep_sleep_start(); // TODO: uncomment for production
+    esp_deep_sleep_start();
 }
 
 void loop() {
-    // TODO: uncomment for production
     // Should never reach here in normal operation
-    // Serial.println("Unexpected loop entry, going back to sleep");
-    // esp_sleep_enable_timer_wakeup(SAMPLING_INTERVAL_S * uS_TO_S_FACTOR);
-    // esp_deep_sleep_start();
-    setup(); // TODO: remove for production
+    Serial.println("Unexpected loop entry, going back to sleep");
+    esp_sleep_enable_timer_wakeup(SAMPLING_INTERVAL_S * uS_TO_S_FACTOR);
+    esp_deep_sleep_start();
 }
