@@ -167,7 +167,7 @@ const deleteHistory = async () => {
     }
 
     // Update sensor to reflect no latest reading
-    sensor.value.latest_reading = null
+    sensor.value.latest_reading = undefined
     sensor.value.online = false
   } catch (err) {
     deleteHistoryError.value = 'Failed to delete sensor history'
