@@ -10,6 +10,7 @@ import io
 from pathlib import Path
 
 import psycopg
+import psycopg.rows
 
 from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps
 
