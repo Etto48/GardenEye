@@ -84,6 +84,7 @@ void update_base_time() {
 }
 
 struct SensorReadings read_sensors() {
+    temperature_sensors.begin();
     struct SensorReadings ret = {
         .timestamp = get_current_timestamp(),
         .humidity = 0,
@@ -106,9 +107,7 @@ struct SensorReadings read_sensors() {
     }
     ret.humidity = h/ANALOG_ACCURACY;
     ret.battery = b/ANALOG_ACCURACY;
-    while (!temperature_sensors.isConversionComplete()) {
-        delay(10);
-    }
+    temperature_sensors.blockTillConversionComplete(0);
     ret.temperature = temperature_sensors.getTempCByIndex(0);
 
     digitalWrite(SENSOR_POWER_PIN, LOW);
