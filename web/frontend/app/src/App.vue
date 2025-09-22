@@ -41,7 +41,7 @@ onUnmounted(() => {
 <template>
     <header class="app-header sticky flex items-center px-2 transition-colors">
         <div class="header-left flex items-center">
-            <img alt="GardenEye logo" class="logo" src="@/assets/favicon.svg" />
+            <img alt="GardenEye logo" class="logo" src="/favicon.svg" />
             <h1 class="title">GardenEye</h1>
         </div>
         
@@ -106,7 +106,7 @@ onUnmounted(() => {
 
 .app-header .title {
     font-weight: bold;
-    margin: 0.5rem;
+    margin: 0.5rem 1rem;
 }
 
 /* Desktop Navigation */
