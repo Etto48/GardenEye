@@ -13,14 +13,9 @@ from pathlib import Path
 import psycopg
 import psycopg.rows
 
-from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps, TimeSyncProps
+from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps, TimeSyncProps, GlobalSettingsProps
 
 API_KEY = os.getenv("API_KEY")
-MAX_LATENCY = 86400  # 24 hours in seconds
-WARNING_CHARGE_VOLTAGE = 3.3  # Voltage below which battery is considered low
-CRITICAL_CHARGE_VOLTAGE = 3.0  # Voltage below which battery is considered critical
-
-SYNC_TIME_24H = "12:00"  # Daily sync time in HH:MM format
 
 UPLOADS_PATH = os.getenv("UPLOADS_PATH", "/uploads")
 PHOTOS_DIR = Path(f"{UPLOADS_PATH}/photos")
@@ -31,6 +26,20 @@ logger = logging.getLogger(__name__)
 PHOTOS_DIR.mkdir(exist_ok=True)
 
 api = fastapi.APIRouter(prefix="/api")
+
+async def get_settings(db: psycopg.AsyncConnection) -> GlobalSettingsProps:
+    async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
+        await cur.execute("SELECT key, value FROM settings")
+        rows = await cur.fetchall()
+        settings_dict = {row['key']: row['value'] for row in rows}
+        sync_time = settings_dict.get('sync-time', '12:00')
+        sync_hour, sync_minute = map(int, sync_time.split(':'))
+        return GlobalSettingsProps(
+            sync_time=(sync_hour, sync_minute),
+            battery_warning_threshold=float(settings_dict.get('battery-warning-threshold', 3.3)),
+            battery_critical_threshold=float(settings_dict.get('battery-critical-threshold', 3.0)),
+            max_latency=int(settings_dict.get('max-latency', 86400))
+        )
 
 def verify_token(token: str):
     if token != API_KEY:
@@ -259,6 +268,7 @@ async def get_sensors(
     Get all sensors with their latest readings (if available).
     """
     db: psycopg.AsyncConnection = request.app.state.db
+    settings = await get_settings(db)
     async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
         if mac:
             verify_mac(mac)
@@ -306,7 +316,7 @@ async def get_sensors(
                 mac=row['mac'],
                 name=row['name'],
                 has_photo=row['has_photo'],
-                online=(int(time.time()) - int(row['timestamp']) <= MAX_LATENCY) if row['timestamp'] is not None else False,
+                online=(int(time.time()) - int(row['timestamp']) <= settings.max_latency) if row['timestamp'] is not None else False,
                 latest_reading=latest_reading
             ))
         if mac is not None and len(result) == 0:
@@ -375,6 +385,7 @@ async def get_info(request: fastapi.Request):
     """
     result = []
     db: psycopg.AsyncConnection = request.app.state.db
+    settings = await get_settings(db)
     async with db.cursor(row_factory=psycopg.rows.dict_row) as cur:
         online_sensors = 0
         offline_sensors = 0
@@ -398,14 +409,14 @@ async def get_info(request: fastapi.Request):
         latest_readings = await cur.fetchall()
         for row in latest_readings:
             if row['timestamp'] is not None:
-                if int(time.time()) - int(row['timestamp']) <= MAX_LATENCY:
+                if int(time.time()) - int(row['timestamp']) <= settings.max_latency:
                     online_sensors += 1
                 else:
                     offline_sensors += 1
                 
-                if row['battery'] < CRITICAL_CHARGE_VOLTAGE:
+                if row['battery'] < settings.battery_critical_threshold:
                     critical_battery_nodes += 1
-                elif row['battery'] < WARNING_CHARGE_VOLTAGE:
+                elif row['battery'] < settings.battery_warning_threshold:
                     low_battery_nodes += 1
             else:
                 offline_sensors += 1  # No readings means offline
@@ -625,9 +636,11 @@ async def get_time(
     """
     Get the current server time and the next recommended sync time.
     """
+    db: psycopg.AsyncConnection = request.app.state.db
+    settings = await get_settings(db)
     base_time = int(time.time())
     next_sync = datetime.datetime.now()
-    hour, minute = map(int, SYNC_TIME_24H.split(":"))
+    hour, minute = settings.sync_time
     next_sync = next_sync.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if next_sync.timestamp() <= datetime.datetime.now().timestamp():
         next_sync += datetime.timedelta(days=1)
@@ -636,3 +649,30 @@ async def get_time(
         next_sync=int(next_sync.timestamp())
     )
     
+@api.get("/settings", response_model=GlobalSettingsProps)
+async def get_global_settings(
+    request: fastapi.Request,
+):
+    """
+    Get global settings.
+    """
+    db: psycopg.AsyncConnection = request.app.state.db
+    settings = await get_settings(db)
+    return settings
+
+@api.post("/settings", responses={200: {"description": "Settings updated successfully"}})
+async def post_global_settings(
+    request: fastapi.Request,
+    settings: GlobalSettingsProps = fastapi.Body(..., description="The global settings to update")
+):
+    """
+    Update global settings.
+    """
+    db: psycopg.AsyncConnection = request.app.state.db
+    async with db.cursor() as cur:
+        await cur.execute("UPDATE settings SET value = %s WHERE key = 'sync-time'", (f"{settings.sync_time[0]:02}:{settings.sync_time[1]:02}",))
+        await cur.execute("UPDATE settings SET value = %s WHERE key = 'battery-warning-threshold'", (str(settings.battery_warning_threshold),))
+        await cur.execute("UPDATE settings SET value = %s WHERE key = 'battery-critical-threshold'", (str(settings.battery_critical_threshold),))
+        await cur.execute("UPDATE settings SET value = %s WHERE key = 'max-latency'", (str(settings.max_latency),))
+        await db.commit()
+    return fastapi.Response(status_code=200)

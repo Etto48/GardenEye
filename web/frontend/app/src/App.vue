@@ -8,6 +8,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <h1 class="title">GardenEye</h1>
         <nav class="flex-1 text-center">
             <RouterLink to="/">Dashboard</RouterLink>
+            <RouterLink to="/settings">Settings</RouterLink>
         </nav>
     </header>
     
@@ -34,7 +35,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 .app-header .title {
     font-weight: bold;
-    margin-left: 10px;
+    margin: 0.5rem;
 }
 
 .app-header nav {
@@ -55,8 +56,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 .app-header nav a {
     display: inline-block;
-    margin: 1rem;
-    border-left: 1px solid var(--color-border);
+    margin: 0.5rem;
 }
 
 .app-header nav a:first-of-type {

@@ -40,4 +40,9 @@ class SensorSettingsProps(pydantic.BaseModel):
 class TimeSyncProps(pydantic.BaseModel):
     base_time: int
     next_sync: int
-    
+
+class GlobalSettingsProps(pydantic.BaseModel):
+    sync_time: tuple[int, int]  # (hour, minute)
+    battery_warning_threshold: float
+    battery_critical_threshold: float
+    max_latency: int

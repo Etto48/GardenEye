@@ -19,4 +19,15 @@ WITH (
   timescaledb.chunk_interval='7d'
 );
 
+create table settings (
+  key text primary key,
+  value text not null
+);
+
+insert into settings (key, value) values
+  ('sync-time', '12:00'),
+  ('battery-warning-threshold', '3.3'),
+  ('battery-critical-threshold', '3.0'),
+  ('max-latency', '86400'); -- 1 day in seconds
+
 CALL add_columnstore_policy('readings', after => INTERVAL '7d');
