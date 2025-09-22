@@ -241,9 +241,7 @@ const getChartConfig = (
       responsive: true,
       maintainAspectRatio: false,
       layout: {
-        padding: {
-          bottom: 40,
-        },
+        padding: 0,
       },
       plugins: {
         legend: {
@@ -557,10 +555,11 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
 .charts-container {
   display: flex;
   flex-direction: column;
+  padding: 0;
 }
 
-.card.chart-container {
-  padding: 0 1rem 0 1rem;
+.chart-container {
+  padding: 10px;
 }
 
 .chart-header {
@@ -569,7 +568,7 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   gap: 0.5rem;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  padding-top: 1rem;
+  padding: 1rem 1rem 0 1rem;
   border-top: 1px solid var(--color-border);
 }
 

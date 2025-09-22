@@ -164,6 +164,10 @@
   position: fixed;
 }
 
+.sticky {
+  position: sticky;
+}
+
 /* Common positioning */
 .top-0 { top: 0; }
 .right-0 { right: 0; }

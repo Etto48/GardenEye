@@ -182,7 +182,7 @@ const handleImageError = (event: Event) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-surface-variant);
+    background: var(--color-background);
 }
 
 .sensor-photo {
