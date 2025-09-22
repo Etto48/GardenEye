@@ -1,3 +1,4 @@
+import datetime
 import re
 from typing import Optional
 import fastapi
@@ -12,12 +13,14 @@ from pathlib import Path
 import psycopg
 import psycopg.rows
 
-from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps
+from models import InfoProps, LatestReadingProps, ReadingsProps, SensorProps, SensorSettingsProps, TimeSyncProps
 
 API_KEY = os.getenv("API_KEY")
 MAX_LATENCY = 86400  # 24 hours in seconds
 WARNING_CHARGE_VOLTAGE = 3.3  # Voltage below which battery is considered low
 CRITICAL_CHARGE_VOLTAGE = 3.0  # Voltage below which battery is considered critical
+
+SYNC_TIME_24H = "12:00"  # Daily sync time in HH:MM format
 
 UPLOADS_PATH = os.getenv("UPLOADS_PATH", "/uploads")
 PHOTOS_DIR = Path(f"{UPLOADS_PATH}/photos")
@@ -614,3 +617,22 @@ async def get_readings_download(
             'Content-Disposition': f'attachment; filename="{mac.replace(":", "").lower()}_readings.csv"'
         }
         return fastapi.responses.StreamingResponse(io_stream, media_type="text/csv", headers=headers)
+
+@api.get("/time", response_model=TimeSyncProps)
+async def get_time(
+    request: fastapi.Request,
+):
+    """
+    Get the current server time and the next recommended sync time.
+    """
+    base_time = int(time.time())
+    next_sync = datetime.datetime.now()
+    hour, minute = map(int, SYNC_TIME_24H.split(":"))
+    next_sync = next_sync.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if next_sync.timestamp() <= datetime.datetime.now().timestamp():
+        next_sync += datetime.timedelta(days=1)
+    return TimeSyncProps(
+        base_time=base_time,
+        next_sync=int(next_sync.timestamp())
+    )
+    

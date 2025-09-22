@@ -3,6 +3,7 @@
 #include <esp_wifi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <ArduinoJson.h>
 #include "private.h"
 
 constexpr float MAX_V = 3.3; // max voltage for ADC, equivalent to MAX_ANALOG reading from analogRead(...)
@@ -18,12 +19,19 @@ constexpr uint8_t SENSOR_POWER_PIN = 13; // GPIO to power the sensors
 
 constexpr uint64_t MAX_SENSOR_READINGS = 24; // max number of readings to store in RTC memory
 constexpr uint64_t SAMPLING_INTERVAL_S = 1; // sample every N seconds
-constexpr uint64_t SENDING_INTERVAL_SAMPLES = 1; // send every N samples 
+constexpr uint64_t MIN_SYNC_SAMPLES = 1; // send every N samples 
 constexpr uint64_t MAX_CONNECTION_TIME_S = 30; // max time to wait for wifi connection
-constexpr uint64_t HTTP_TIMEOUT_S = 10; // timeout for HTTP operationsl
+constexpr uint64_t HTTP_TIMEOUT_S = 10; // timeout for HTTP operations
 
-constexpr uint64_t MAX_JSON_SIZE = 1024*4; // max size of JSON payload
+constexpr uint64_t MAX_JSON_SIZE = 1024 * 4; // max size of JSON payload
 constexpr uint64_t MAX_FIELD_LENGTH = 32; // max length for individual field in JSON
+
+constexpr float CRITICAL_V = 3.0; // critical battery voltage
+
+#define SERVER_HOSTNAME "ettorex1.local"
+#define SERVER_URL "https://" SERVER_HOSTNAME
+#define READINGS_URL SERVER_URL "/api/readings"
+#define TIME_URL SERVER_URL "/api/time"
 
 struct SensorReadings {
     uint64_t timestamp;
@@ -35,7 +43,9 @@ struct SensorReadings {
 RTC_DATA_ATTR struct SensorReadings data[MAX_SENSOR_READINGS];
 RTC_DATA_ATTR uint64_t sensor_readings_start = 0;
 RTC_DATA_ATTR uint64_t sensor_readings_len = 0;
-RTC_DATA_ATTR uint64_t base_time = 0;
+RTC_DATA_ATTR uint64_t base_time = 0; // base time in seconds since epoch
+RTC_DATA_ATTR uint64_t next_sync = 0; // next recommended sync time in seconds since epoch
+RTC_DATA_ATTR bool critical_battery_detected = false;
 
 OneWire one_wire(TEMPERATURE_PIN);
 DallasTemperature temperature_sensors(&one_wire);
@@ -76,15 +86,57 @@ void wifi_sleep() {
 }
 
 uint64_t get_current_timestamp() {
-    return (esp_timer_get_time() / 1000 + base_time) / 1000;
+    return (esp_timer_get_time() / 1000000 + base_time);
 }
 
 void update_base_time() {
-    // base_time += SAMPLING_INTERVAL_S * 1000; // TODO: uncomment for production
+    base_time += SAMPLING_INTERVAL_S;
+}
+
+void set_current_time(uint64_t current_time) {
+    base_time = current_time - (esp_timer_get_time() / 1000000);
+}
+
+bool sync_base_time_from_string(String json) {
+    JsonDocument doc;
+    auto error = deserializeJson(doc, json);
+    if (error != DeserializationError::Ok) {
+        Serial.printf("Failed to parse time sync JSON: %s\n", error.c_str());
+        return false;
+    }
+    if (!doc["base_time"].is<uint64_t>() || !doc["next_sync"].is<uint64_t>()) {
+        Serial.println("Invalid time sync JSON: missing keys");
+        return false;
+    }
+    set_current_time(doc["base_time"].as<uint64_t>());
+    next_sync = doc["next_sync"].as<uint64_t>();
+    Serial.printf("Time synced\n");
+    return true;
+}
+
+void sync_base_time() {
+    // Must be called with WiFi to work
+    HTTPClient client;
+    client.begin(TIME_URL);
+    client.setTimeout(HTTP_TIMEOUT_S * 1000);
+    int code = client.GET();
+    bool failed = false;
+    if (code >= 200 && code < 300) {
+        // Success
+        String response = client.getString();
+        if (!sync_base_time_from_string(response)) {
+            failed = true;
+        }
+    } else {
+        Serial.printf("Time sync failed, error: %s\n", client.errorToString(code).c_str());
+        failed = true;
+    }
+    if (failed) {
+        next_sync = 0; // try again next time
+    }
 }
 
 struct SensorReadings read_sensors() {
-    temperature_sensors.begin();
     struct SensorReadings ret = {
         .timestamp = get_current_timestamp(),
         .humidity = 0,
@@ -96,6 +148,7 @@ struct SensorReadings read_sensors() {
     double b = 0;    
     digitalWrite(SENSOR_POWER_PIN, HIGH);
     delay(20);
+    temperature_sensors.begin();
     temperature_sensors.setWaitForConversion(false);
     temperature_sensors.setResolution(12);
     temperature_sensors.requestTemperatures();
@@ -287,14 +340,14 @@ char *serialize_readings_to_json_stack() {
 }
 
 bool upload_readings() {
-    // -1 for error
+    // False for error
     HTTPClient client;
     uint8_t baseMac[6];
     char mac_str[18];
 
     esp_wifi_get_mac(WIFI_IF_STA, baseMac);
     snprintf(mac_str, 18, "%02x:%02x:%02x:%02x:%02x:%02x", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
-    client.begin("http://ettorex1.local:8000/api/readings");
+    client.begin(READINGS_URL);
     
     // Set timeout to prevent hanging
     client.setTimeout(HTTP_TIMEOUT_S * 1000); // *1000 to convert to ms
@@ -330,12 +383,24 @@ bool upload_readings() {
     }
 }
 
+void update_battery_status(struct SensorReadings reading) {
+    if (reading.battery <= CRITICAL_V) {
+        critical_battery_detected = true;
+    }
+}
+
+void check_if_enough_battery() {
+    if (critical_battery_detected) {
+        esp_deep_sleep_start(); // Enter deep sleep forever
+    }
+}
+
 void setup() {
     Serial.begin(115200);
     pinMode(SENSOR_POWER_PIN, OUTPUT);
     // Power off the wireless module
     wifi_sleep();
-    
+
     // Take a reading
     auto reading = read_sensors();
     push_reading(reading);
@@ -344,12 +409,16 @@ void setup() {
         format_temperature(reading.temperature), 
         format_humidity(reading.humidity), 
         sensor_readings_len, 
-        SENDING_INTERVAL_SAMPLES);
+        MIN_SYNC_SAMPLES);
 
-    // If we have enough readings, upload them
-    if (sensor_readings_len >= SENDING_INTERVAL_SAMPLES) {
+    update_battery_status(reading);
+    check_if_enough_battery();
+
+    // If we have enough readings, or it's time to sync, upload them
+    if (next_sync == 0 || get_current_timestamp() >= next_sync || sensor_readings_len >= MIN_SYNC_SAMPLES) {
         if (wifi_init()) {
             upload_readings();
+            sync_base_time();
         }
         wifi_sleep();
     }

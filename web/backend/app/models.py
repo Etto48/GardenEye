@@ -36,3 +36,8 @@ class InfoProps(pydantic.BaseModel):
 
 class SensorSettingsProps(pydantic.BaseModel):
     name: Optional[str] = None
+
+class TimeSyncProps(pydantic.BaseModel):
+    base_time: int
+    next_sync: int
+    
