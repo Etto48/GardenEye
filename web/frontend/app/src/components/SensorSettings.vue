@@ -210,7 +210,7 @@ const deleteSensor = async () => {
 </script>
 
 <template>
-  <div class="settings py-4 max-w-6xl mx-auto">
+  <div class="py-4 max-w-6xl mx-auto">
     <div class="header-section mb-4">
       <div class="text-center">
         <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Sensor Settings</h1>

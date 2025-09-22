@@ -209,6 +209,13 @@
   padding: 10px;
 }
 
+.header-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Empty State Components */
 .empty-state {
   text-align: center;

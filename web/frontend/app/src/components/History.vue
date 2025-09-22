@@ -401,7 +401,7 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
 </script>
 
 <template>
-  <div class="history py-4 max-w-6xl mx-auto">
+  <div class="py-4 max-w-6xl mx-auto">
     <div class="header-section mb-4">
       <div class="text-center">
         <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Sensor History</h1>
@@ -518,13 +518,6 @@ const hasData = computed(() => readings.value && readings.value.timestamps.lengt
   position: relative;
   width: 100%;
   height: 450px;
-}
-
-.header-section {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .time-selector {

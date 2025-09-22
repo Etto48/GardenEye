@@ -131,7 +131,13 @@ onMounted(loadSettings)
 </script>
 
 <template>
-  <div class="global-settings">
+  <div class="py-4 max-w-6xl mx-auto">
+    <div class="header-section mb-4">
+      <div class="text-center">
+        <h1 class="text-3xl font-semibold text-heading m-0 mb-1">Global Settings</h1>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
       <p>Loading settings...</p>
@@ -264,10 +270,6 @@ onMounted(loadSettings)
 </template>
 
 <style scoped>
-.global-settings {
-  max-width: 800px;
-  margin: 0 auto;
-}
 
 .loading-state {
   display: flex;
@@ -335,9 +337,11 @@ onMounted(loadSettings)
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 0;
 }
 
 .card-header {
+  border-radius: 5px 5px 0 0;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-background-soft);
@@ -435,13 +439,13 @@ onMounted(loadSettings)
 }
 
 .latency-value {
-  flex: 0 0 100px;
-  min-width: 100px;
+  flex: 1;
+  min-width: 60px;
 }
 
 .latency-unit {
   flex: 1;
-  min-width: 120px;
+  min-width: 80px;
 }
 
 /* Button Styles */
@@ -470,11 +474,6 @@ onMounted(loadSettings)
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .global-settings {
-    margin: 0;
-    padding: 0 1rem;
-  }
-
   .card-header,
   .card-content {
     padding: 1rem;
@@ -483,16 +482,6 @@ onMounted(loadSettings)
   .latency-selector {
     flex-direction: row;
     gap: 0.5rem;
-  }
-
-  .latency-value {
-    flex: 0 0 80px;
-    min-width: 80px;
-  }
-
-  .latency-unit {
-    flex: 1;
-    min-width: auto;
   }
 
   .btn-large {
