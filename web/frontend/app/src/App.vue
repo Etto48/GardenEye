@@ -45,8 +45,8 @@ onUnmounted(() => {
             <h1 class="title">GardenEye</h1>
         </div>
         
-        <!-- Desktop Navigation -->
-        <nav class="desktop-nav">
+        <!-- Navigation -->
+        <nav :class="{ 'open': isMobileMenuOpen }">
             <RouterLink to="/" @click="closeMobileMenu"><i class="bi bi-house"></i>Dashboard</RouterLink>
             <RouterLink to="/settings" @click="closeMobileMenu"><i class="bi bi-gear"></i>Settings</RouterLink>
         </nav>
@@ -71,12 +71,7 @@ onUnmounted(() => {
         class="mobile-nav-overlay" 
         :class="{ 'open': isMobileMenuOpen }"
         @click="closeMobileMenu"
-    >
-        <nav class="mobile-nav" @click.stop>
-            <RouterLink to="/" @click="closeMobileMenu"><i class="bi bi-house"></i>Dashboard</RouterLink>
-            <RouterLink to="/settings" @click="closeMobileMenu"><i class="bi bi-gear"></i>Settings</RouterLink>
-        </nav>
-    </div>
+    ></div>
     
     <main>
         <RouterView />
@@ -109,8 +104,8 @@ onUnmounted(() => {
     margin: 0.5rem 1rem;
 }
 
-/* Desktop Navigation */
-.desktop-nav {
+/* Navigation */
+nav {
     margin: 0;
     position: relative;
     top: 2px;
@@ -118,21 +113,26 @@ onUnmounted(() => {
     font-size: 1rem;
 }
 
-.desktop-nav a.router-link-exact-active {
+nav a.router-link-exact-active {
     color: var(--color-text);
 }
 
-.desktop-nav a.router-link-exact-active:hover {
+nav a.router-link-exact-active:hover {
     background-color: transparent;
 }
 
-.desktop-nav a {
+nav a {
     display: inline-block;
     margin: 0.5rem;
 }
 
-.desktop-nav a:first-of-type {
+nav a:first-of-type {
     border: 0;
+}
+
+nav a i {
+    margin-right: 0.5rem;
+    color: inherit;
 }
 
 /* Mobile Menu Button */
@@ -215,56 +215,50 @@ onUnmounted(() => {
     visibility: visible;
 }
 
-.mobile-nav {
-    border-radius: 0 0 0 0.5rem;
-    position: absolute;
-    top: 80px;
-    right: 0;
-    width: 250px;
-    background-color: var(--color-background);
-    border-left: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    padding: 1rem 0;
-}
-
-.mobile-nav-overlay.open .mobile-nav {
-    transform: translateX(0);
-}
-
-.mobile-nav a {
-    display: block;
-    padding: 1rem 2rem;
-    text-decoration: none;
-    color: var(--color-text);
-    border-bottom: 1px solid var(--color-border);
-    transition: background-color 0.2s ease;
-}
-
-.mobile-nav a:hover {
-    background-color: var(--color-background-soft);
-}
-
-.mobile-nav a.router-link-exact-active {
-    background-color: var(--color-background-mute);
-    color: var(--color-accent-1);
-}
-
-.mobile-nav a:last-child {
-    border-bottom: none;
-}
-
-nav a i {
-    margin-right: 0.5rem;
-    color: inherit;
-}
-
 /* Mobile Responsive Design */
 @media (max-width: 767px) {
-    .desktop-nav {
-        display: none;
+    nav {
+        border-radius: 0 0 0 0.5rem;
+        position: fixed;
+        top: 80px;
+        right: 0;
+        width: 250px;
+        background-color: var(--color-background);
+        border-left: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        padding: 1rem 0;
+        z-index: 1000;
+        text-align: left;
+    }
+    
+    nav.open {
+        transform: translateX(0);
+    }
+    
+    nav a {
+        display: block;
+        padding: 1rem 2rem;
+        text-decoration: none;
+        color: var(--color-text);
+        border-bottom: 1px solid var(--color-border);
+        transition: background-color 0.2s ease;
+        margin: 0;
+    }
+    
+    nav a:hover {
+        background-color: var(--color-background-soft);
+    }
+    
+    nav a.router-link-exact-active {
+        background-color: var(--color-background-mute);
+        color: var(--color-accent-1);
+    }
+    
+    nav a:last-child {
+        border-bottom: none;
     }
     
     .mobile-menu-button {
