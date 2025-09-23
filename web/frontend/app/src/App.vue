@@ -47,8 +47,8 @@ onUnmounted(() => {
         
         <!-- Desktop Navigation -->
         <nav class="desktop-nav">
-            <RouterLink to="/" @click="closeMobileMenu">Dashboard</RouterLink>
-            <RouterLink to="/settings" @click="closeMobileMenu">Settings</RouterLink>
+            <RouterLink to="/" @click="closeMobileMenu"><i class="bi bi-house"></i>Dashboard</RouterLink>
+            <RouterLink to="/settings" @click="closeMobileMenu"><i class="bi bi-gear"></i>Settings</RouterLink>
         </nav>
         
         <!-- Mobile Burger Menu Button -->
@@ -73,8 +73,8 @@ onUnmounted(() => {
         @click="closeMobileMenu"
     >
         <nav class="mobile-nav" @click.stop>
-            <RouterLink to="/" @click="closeMobileMenu">Dashboard</RouterLink>
-            <RouterLink to="/settings" @click="closeMobileMenu">Settings</RouterLink>
+            <RouterLink to="/" @click="closeMobileMenu"><i class="bi bi-house"></i>Dashboard</RouterLink>
+            <RouterLink to="/settings" @click="closeMobileMenu"><i class="bi bi-gear"></i>Settings</RouterLink>
         </nav>
     </div>
     
@@ -254,6 +254,11 @@ onUnmounted(() => {
 
 .mobile-nav a:last-child {
     border-bottom: none;
+}
+
+nav a i {
+    margin-right: 0.5rem;
+    color: inherit;
 }
 
 /* Mobile Responsive Design */
