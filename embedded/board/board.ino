@@ -53,7 +53,7 @@ DallasTemperature temperature_sensors(&one_wire);
 bool wifi_init() {
     WiFi.mode(WIFI_MODE_STA);
     // WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-    WiFi.setHostname("GardenEye");
+    WiFi.setHostname("gardeneye-sensor");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     
     // Add timeout to prevent infinite hanging
