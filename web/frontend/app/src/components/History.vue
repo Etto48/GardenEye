@@ -188,7 +188,7 @@ const prepareChartData = (metric: 'temperature' | 'humidity' | 'battery'): Chart
 
   const data = readings.value.timestamps.map((timestamp, i) => ({
     x: timestamp * 1000, // Convert to milliseconds for Chart.js
-    y: readings.value![metric][i],
+    y: readings.value![metric][i]!,
   }))
 
   // // If metric is battery, scale voltage to %

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import type { GlobalSettings } from '@/types/settings'
+import { isNullOrUndef } from 'chart.js/helpers'
 
 const loading = ref(true)
 const saving = ref(false)
@@ -23,6 +24,7 @@ const syncTimeFormatted = computed({
   },
   set: (value: string) => {
     const [hour, minute] = value.split(':').map(Number)
+    if (isNullOrUndef(hour) || isNullOrUndef(minute)) return
     settings.value.sync_time = [hour, minute]
   }
 })
