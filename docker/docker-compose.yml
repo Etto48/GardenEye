@@ -64,7 +64,8 @@ services:
     env_file:
       - ./public.env
     ports:
-      - "80:80"
+      - ${PROXY_PORT}:${PROXY_PORT}
+      - ${PROXY_SSL_PORT}:${PROXY_SSL_PORT}
     depends_on:
       - frontend
       - backend

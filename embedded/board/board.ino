@@ -7,7 +7,7 @@
 #include "private.h"
 
 constexpr float MAX_V = 3.3; // max voltage for ADC, equivalent to MAX_ANALOG reading from analogRead(...)
-constexpr float DIVIDER_CORRECTIVE_FACTOR = 3; // corrective factor for voltage divider
+constexpr float DIVIDER_CORRECTIVE_FACTOR = 2; // corrective factor for voltage divider
 constexpr uint16_t ANALOG_ACCURACY = 10; // number of analog reads to average
 constexpr uint16_t MAX_ANALOG = 4095; // max analog read value for 12 bit ADC
 constexpr uint64_t uS_TO_S_FACTOR = 1000000; /* Conversion factor for micro seconds to seconds */
@@ -18,8 +18,8 @@ constexpr uint8_t BATTERY_PIN = 32; // GPIO to read battery voltage
 constexpr uint8_t SENSOR_POWER_PIN = 13; // GPIO to power the sensors
 
 constexpr uint64_t MAX_SENSOR_READINGS = 24; // max number of readings to store in RTC memory
-constexpr uint64_t SAMPLING_INTERVAL_S = 1; // sample every N seconds
-constexpr uint64_t MIN_SYNC_SAMPLES = 1; // send every N samples 
+constexpr uint64_t SAMPLING_INTERVAL_S = 10; // sample every N seconds
+constexpr uint64_t MIN_SYNC_SAMPLES = 12; // send every N samples 
 constexpr uint64_t MAX_CONNECTION_TIME_S = 30; // max time to wait for wifi connection
 constexpr uint64_t HTTP_TIMEOUT_S = 10; // timeout for HTTP operations
 
@@ -28,8 +28,8 @@ constexpr uint64_t MAX_FIELD_LENGTH = 32; // max length for individual field in 
 
 constexpr float CRITICAL_V = 3.0; // critical battery voltage
 
-#define SERVER_HOSTNAME "ettorex1.local"
-#define SERVER_URL "https://" SERVER_HOSTNAME
+#define SERVER_HOSTNAME "gardeneye.local"
+#define SERVER_URL "http://" SERVER_HOSTNAME
 #define READINGS_URL SERVER_URL "/api/readings"
 #define TIME_URL SERVER_URL "/api/time"
 
@@ -191,9 +191,13 @@ void clear_readings() {
     sensor_readings_len = 0;
 }
 
+float battery_value(float battery) {
+    return battery * MAX_V * DIVIDER_CORRECTIVE_FACTOR;
+}
+
 char *format_battery(float battery) {
     static char buf[MAX_FIELD_LENGTH];
-    snprintf(buf, MAX_FIELD_LENGTH, "%f", battery * MAX_V * DIVIDER_CORRECTIVE_FACTOR);
+    snprintf(buf, MAX_FIELD_LENGTH, "%f", battery_value(battery));
     return buf;
 }
 
@@ -227,8 +231,7 @@ char *serialize_readings_to_json_stack() {
     struct SensorReadings* reading = nullptr;
     uint64_t index = 0;
     while((reading = iter_reading(&index)) != nullptr) {
-        float temp_value = (reading->temperature * MAX_V - 0.1 * MAX_V) * 100;
-        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%f", temp_value);
+        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%s", format_temperature(reading->temperature));
         if (written >= MAX_JSON_SIZE - pos) {
             Serial.println("JSON buffer overflow at temperature values");
             return nullptr;
@@ -255,8 +258,7 @@ char *serialize_readings_to_json_stack() {
     // Add humidity values
     index = 0;
     while((reading = iter_reading(&index)) != nullptr) {
-        float humidity_value = (1 - reading->humidity) * 100;
-        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%f", humidity_value);
+        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%s", format_humidity(reading->humidity));
         if (written >= MAX_JSON_SIZE - pos) {
             Serial.println("JSON buffer overflow at humidity values");
             return nullptr;
@@ -283,8 +285,7 @@ char *serialize_readings_to_json_stack() {
     // Add battery values
     index = 0;
     while((reading = iter_reading(&index)) != nullptr) {
-        float battery_value = reading->battery * MAX_V * DIVIDER_CORRECTIVE_FACTOR;
-        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%f", battery_value);
+        written = snprintf(json + pos, MAX_JSON_SIZE - pos, "%s", format_battery(reading->battery));
         if (written >= MAX_JSON_SIZE - pos) {
             Serial.println("JSON buffer overflow at battery values");
             return nullptr;
@@ -384,7 +385,8 @@ bool upload_readings() {
 }
 
 void update_battery_status(struct SensorReadings reading) {
-    if (reading.battery <= CRITICAL_V) {
+    auto battery = battery_value(reading.battery);
+    if (battery <= CRITICAL_V && battery >= 0.01) { // If battery is disconnected don't stop
         critical_battery_detected = true;
     }
 }

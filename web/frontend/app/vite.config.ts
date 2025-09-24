@@ -23,6 +23,6 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: true
+    allowedHosts: process.env.MODE || 'development' === 'development' ? true : ['localhost', process.env.PROXY_HOST || 'gardeneye-proxy'],
   },
 })

@@ -5,6 +5,7 @@ import colorlog
 
 
 PORT = int(os.getenv("BACKEND_PORT", "8000"))
+MODE = os.getenv("MODE", "development")
 
 if __name__ == "__main__":
     # Create custom logging config for uvicorn
@@ -59,9 +60,9 @@ if __name__ == "__main__":
     
     uvicorn.run(
         "app:app", 
-        host="::", 
+        host="0.0.0.0", 
         port=PORT, 
-        reload=True, 
+        reload=(MODE == "development"),
         reload_delay=1,
         log_config=log_config
     )

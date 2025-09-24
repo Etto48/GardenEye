@@ -1,1 +1,41 @@
-
+services:
+  frontend:
+    build: 
+      args:
+        - MODE=production
+    environment:
+      - MODE=production
+    ports: []
+    expose:
+      - "${FRONTEND_PORT}"
+  backend:
+    build:
+      args:
+        - MODE=production
+    environment:
+      - MODE=production
+    ports: []
+    expose:
+      - "${BACKEND_PORT}"
+  db:
+    build:
+      args:
+        - MODE=production
+    environment:
+      - MODE=production
+    ports: []
+    expose:
+      - "${DB_PORT}"
+  proxy:
+    build:
+      args:
+        - BACKEND_HOST=${BACKEND_HOST}
+        - BACKEND_PORT=${BACKEND_PORT}
+        - FRONTEND_HOST=${FRONTEND_HOST}
+        - FRONTEND_PORT=${FRONTEND_PORT}
+        - MODE=production
+    environment:
+      - MODE=production
+    ports:
+      - "${PROXY_PORT}:${PROXY_PORT}"
+      - "${PROXY_SSL_PORT}:${PROXY_SSL_PORT}"
