@@ -2,6 +2,6 @@ FROM node:24
 
 WORKDIR /app
 
-COPY run.sh /run.sh
+COPY run.sh /scripts/run.sh
 
-CMD ["sh", "/run.sh"]
+CMD ["sh", "/scripts/run.sh"]
