@@ -23,6 +23,7 @@ services:
         - MODE=production
     environment:
       - MODE=production
+      - TS_TUNE_MEMORY=1GB
     ports: []
     expose:
       - "${DB_PORT}"
