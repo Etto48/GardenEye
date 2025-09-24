@@ -4,6 +4,7 @@ set -e
 
 cd $(dirname "$0")
 MODE=${1:-dev}
+ADDITIONAL_ARGS=${@:2}
 if [ "$MODE" = "dev" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml"
 elif [ "$MODE" = "prod" ]; then
@@ -28,9 +29,9 @@ function stop() {
 
 function start() {
     if [ "$MODE" = "dev" ]; then
-        docker compose $DOCKER_COMPOSE $ENV_FILES up --build
+        docker compose $DOCKER_COMPOSE $ENV_FILES up --build $ADDITIONAL_ARGS
     elif [ "$MODE" = "prod" ]; then
-        docker compose $DOCKER_COMPOSE $ENV_FILES up --build
+        docker compose $DOCKER_COMPOSE $ENV_FILES up --build $ADDITIONAL_ARGS
     elif [ "$MODE" = "rm" ]; then
         # do nothing
         echo "Removing all containers, images, volumes, and networks..."
