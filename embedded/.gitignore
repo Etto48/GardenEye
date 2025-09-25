@@ -1,4 +1,5 @@
 battery/readings.csv
 board/private.h
 schematic/schematic-backups
+compact-schematic/compact-schematic-backups
 *.bak
