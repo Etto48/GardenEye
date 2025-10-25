@@ -1,4 +1,4 @@
-24647990743819075
+24649751499632803
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -99357,3 +99357,10 @@ BuckBoost3.3V
 0
 5
 4
+custom
+BuckBoost3.3V_0.85A
+
+
+0
+4
+3

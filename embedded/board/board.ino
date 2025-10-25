@@ -12,9 +12,13 @@
 void setup() {
     Serial.begin(115200);
     pinMode(SENSOR_POWER_PIN, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
+
+    digitalWrite(LED_PIN, HIGH);
 
     if (!gardeneye::integrity::first_time_setup()) {
         Serial.printf("First time setup failed, retrying in %llus\n", RETRY_SETUP_S);
+        digitalWrite(LED_PIN, LOW);
         esp_sleep_enable_timer_wakeup(RETRY_SETUP_S * uS_TO_S_FACTOR);
         esp_deep_sleep_start();
     }
@@ -33,7 +37,16 @@ void setup() {
         MIN_SYNC_SAMPLES);
 
     gardeneye::integrity::update_battery_status(reading);
-    gardeneye::integrity::check_if_enough_battery();
+    // gardeneye::integrity::check_if_enough_battery();
+
+    digitalWrite(LED_PIN, LOW);
+    delay(100);
+    digitalWrite(LED_PIN, HIGH);
+    delay(100);
+    digitalWrite(LED_PIN, LOW);
+    delay(100);
+    digitalWrite(LED_PIN, HIGH);
+    delay(100);
 
     // If we have enough readings, or it's time to sync, upload them
     if (gardeneye::timing::needs_sync() || gardeneye::sensors::needs_upload()) {
@@ -45,6 +58,7 @@ void setup() {
     }
     // Go to sleep
     gardeneye::timing::update_base_time();
+    digitalWrite(LED_PIN, LOW);
     esp_sleep_enable_timer_wakeup(SAMPLING_INTERVAL_S * uS_TO_S_FACTOR);
     esp_deep_sleep_start();
 }

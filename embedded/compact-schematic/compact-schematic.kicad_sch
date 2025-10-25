@@ -439,11 +439,11 @@
 				)
 			)
 		)
-		(symbol "custom:BuckBoost3.3V"
+		(symbol "custom:BuckBoost3.3V_0.85A"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "BuckBoost3.3V"
+			(property "Reference" "BuckBoost3.3V_0.85A"
 				(at 0 0 0)
 				(effects
 					(font
@@ -486,19 +486,10 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "BuckBoost3.3V"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "BuckBoost3.3V_0_1"
+			(symbol "BuckBoost3.3V_0.85A_0_1"
 				(rectangle
-					(start -7.62 6.35)
-					(end 7.62 -7.62)
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
 					(stroke
 						(width 0)
 						(type default)
@@ -508,9 +499,27 @@
 					)
 				)
 			)
-			(symbol "BuckBoost3.3V_1_1"
+			(symbol "BuckBoost3.3V_0.85A_1_1"
 				(pin input line
-					(at -10.16 3.81 0)
+					(at -8.89 2.54 0)
+					(length 2.54)
+					(name "Vin+"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -8.89 -2.54 0)
 					(length 2.54)
 					(name "Vin-"
 						(effects
@@ -527,8 +536,8 @@
 						)
 					)
 				)
-				(pin output line
-					(at 10.16 -2.54 180)
+				(pin bidirectional line
+					(at 8.89 2.54 180)
 					(length 2.54)
 					(name "Vout-"
 						(effects
@@ -545,44 +554,8 @@
 						)
 					)
 				)
-				(pin input line
-					(at -10.16 -2.54 0)
-					(length 2.54)
-					(name "Vin+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -10.16 -5.08 0)
-					(length 2.54)
-					(name "EN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
 				(pin output line
-					(at 10.16 3.81 180)
+					(at 8.89 -2.54 180)
 					(length 2.54)
 					(name "Vout+"
 						(effects
@@ -591,7 +564,7 @@
 							)
 						)
 					)
-					(number "4"
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -699,12 +672,6 @@
 		)
 	)
 	(junction
-		(at 124.46 39.37)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0e7b21be-29cb-46c6-902d-2ca5c8f45594")
-	)
-	(junction
 		(at 90.17 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -721,6 +688,16 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e3007ef2-35a6-421a-8cbe-00baf4b9c238")
+	)
+	(wire
+		(pts
+			(xy 38.1 54.61) (xy 38.1 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13cf1c22-0794-4199-acfa-fe5e30996ae0")
 	)
 	(wire
 		(pts
@@ -754,16 +731,6 @@
 	)
 	(wire
 		(pts
-			(xy 115.57 39.37) (xy 124.46 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "82b25480-a890-44cc-b4cc-e6641d16f5e2")
-	)
-	(wire
-		(pts
 			(xy 90.17 21.59) (xy 90.17 22.86)
 		)
 		(stroke
@@ -781,16 +748,6 @@
 			(type default)
 		)
 		(uuid "9275877e-4e5a-49c1-a752-e14e8cf90885")
-	)
-	(wire
-		(pts
-			(xy 124.46 36.83) (xy 124.46 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a878e13d-9ad5-406e-81bc-782c0a14d590")
 	)
 	(wire
 		(pts
@@ -846,7 +803,7 @@
 	)
 	(global_label "BAT+"
 		(shape input)
-		(at 115.57 39.37 180)
+		(at 77.47 53.34 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -856,7 +813,7 @@
 		)
 		(uuid "0ed0f9bf-8dbc-4c96-97cf-a0badabe2315")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 107.6862 39.37 0)
+			(at 69.5862 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -956,7 +913,7 @@
 	)
 	(global_label "HUM-"
 		(shape input)
-		(at 64.77 38.1 0)
+		(at 38.1 46.99 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -966,34 +923,12 @@
 		)
 		(uuid "4a70a838-1895-4b4a-92fe-0eaa5effb69d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 73.44 38.1 0)
+			(at 46.77 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SEN"
-		(shape input)
-		(at 82.55 43.18 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "67abdabf-7aa4-42f4-9362-d4f530d740a5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 75.8758 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -1066,7 +1001,7 @@
 	)
 	(global_label "SEN"
 		(shape input)
-		(at 30.48 43.18 180)
+		(at 30.48 59.69 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1076,29 +1011,7 @@
 		)
 		(uuid "c2b4f4d8-cbef-45a7-9adf-f48570ce1d50")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 23.8058 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SEN"
-		(shape input)
-		(at 57.15 43.18 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e21adb2d-f7e6-4d28-bb7b-435fc9fa5273")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 50.4758 43.18 0)
+			(at 23.8058 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1110,7 +1023,7 @@
 	)
 	(global_label "3.3V"
 		(shape input)
-		(at 144.78 30.48 0)
+		(at 95.25 58.42 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1120,7 +1033,7 @@
 		)
 		(uuid "f1cd03b8-4fce-45ab-8a3d-6678e7f65df7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.8776 30.48 0)
+			(at 102.3476 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1132,7 +1045,7 @@
 	)
 	(global_label "TMP-"
 		(shape input)
-		(at 90.17 38.1 0)
+		(at 38.1 52.07 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1142,7 +1055,7 @@
 		)
 		(uuid "f6cf0399-2f16-4ac9-b0a9-0899a2d025e0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.4166 38.1 0)
+			(at 46.3466 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1153,34 +1066,33 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 64.77 48.26 0)
+		(lib_id "custom:BuckBoost3.3V_0.85A")
+		(at 86.36 55.88 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "19329bdc-09b5-4dca-bd08-ef1dc946c655")
-		(property "Reference" "#PWR02"
-			(at 64.77 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 64.77 53.34 0)
+		(uuid "1a13ffd4-90d4-4354-b0ea-802028f999ec")
+		(property "Reference" "BuckBoost3.3V_0.85A1"
+			(at 86.36 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" ""
-			(at 64.77 48.26 0)
+		(property "Value" "~"
+			(at 86.36 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "custom:BuckBoost3.3V_0.85A"
+			(at 86.36 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1189,7 +1101,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 64.77 48.26 0)
+			(at 86.36 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1197,22 +1109,31 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 64.77 48.26 0)
+		(property "Description" ""
+			(at 86.36 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
+		)
+		(pin "0"
+			(uuid "cc42c04f-c965-486f-ae8d-7426e81bafd8")
 		)
 		(pin "1"
-			(uuid "017cabb8-7104-4196-b8e1-5865168d8b68")
+			(uuid "41ff624e-d068-4326-908b-e5a3179fddb3")
+		)
+		(pin "1"
+			(uuid "231dbc1f-6939-4e6b-8a0f-5fa7ae59da64")
+		)
+		(pin "2"
+			(uuid "3e6cf0e6-be8c-41d1-b94e-f4d5e81fae24")
 		)
 		(instances
 			(project ""
 				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
-					(reference "#PWR02")
+					(reference "BuckBoost3.3V_0.85A1")
 					(unit 1)
 				)
 			)
@@ -1220,7 +1141,7 @@
 	)
 	(symbol
 		(lib_id "Simulation_SPICE:NMOS")
-		(at 35.56 43.18 0)
+		(at 35.56 59.69 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1229,7 +1150,7 @@
 		(fields_autoplaced yes)
 		(uuid "1f50b4d3-c0df-4053-92e6-ec791af7ac9d")
 		(property "Reference" "Q1"
-			(at 41.91 41.9099 0)
+			(at 41.91 58.4199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1238,7 +1159,7 @@
 			)
 		)
 		(property "Value" "NMOS"
-			(at 41.91 44.4499 0)
+			(at 41.91 60.9599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1247,7 +1168,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-			(at 40.64 40.64 0)
+			(at 40.64 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1256,7 +1177,7 @@
 			)
 		)
 		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
-			(at 35.56 55.88 0)
+			(at 35.56 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1265,7 +1186,7 @@
 			)
 		)
 		(property "Description" "N-MOSFET transistor, drain/source/gate"
-			(at 35.56 43.18 0)
+			(at 35.56 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1274,7 +1195,7 @@
 			)
 		)
 		(property "Sim.Device" "NMOS"
-			(at 35.56 60.325 0)
+			(at 35.56 76.835 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1283,7 +1204,7 @@
 			)
 		)
 		(property "Sim.Type" "VDMOS"
-			(at 35.56 62.23 0)
+			(at 35.56 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1292,7 +1213,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=D 2=G 3=S"
-			(at 35.56 58.42 0)
+			(at 35.56 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1320,7 +1241,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 144.78 36.83 0)
+		(at 95.25 53.34 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1329,7 +1250,7 @@
 		(fields_autoplaced yes)
 		(uuid "4ebc2bb1-7965-4881-9785-9d6af3727df4")
 		(property "Reference" "#PWR05"
-			(at 144.78 43.18 0)
+			(at 101.6 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1338,15 +1259,16 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 144.78 41.91 0)
+			(at 99.06 53.3399 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Footprint" ""
-			(at 144.78 36.83 0)
+			(at 95.25 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1355,7 +1277,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 144.78 36.83 0)
+			(at 95.25 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1364,7 +1286,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 144.78 36.83 0)
+			(at 95.25 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1379,106 +1301,6 @@
 			(project ""
 				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
 					(reference "#PWR05")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:NMOS")
-		(at 62.23 43.18 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5d1a871d-467c-41ef-baee-c90001cfbd5d")
-		(property "Reference" "Q2"
-			(at 68.58 41.9099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "NMOS"
-			(at 68.58 44.4499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-			(at 67.31 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
-			(at 62.23 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "N-MOSFET transistor, drain/source/gate"
-			(at 62.23 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "NMOS"
-			(at 62.23 60.325 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Type" "VDMOS"
-			(at 62.23 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=D 2=G 3=S"
-			(at 62.23 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e47cce5f-31b5-4c32-9080-bec2d67877ac")
-		)
-		(pin "1"
-			(uuid "5ed2c208-b7b4-4ff2-814a-5e4a981b724f")
-		)
-		(pin "3"
-			(uuid "cd4538da-ceec-4f0f-8e32-5b20f5b2af78")
-		)
-		(instances
-			(project ""
-				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
-					(reference "Q2")
 					(unit 1)
 				)
 			)
@@ -1556,16 +1378,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 124.46 30.48 0)
+		(at 77.47 58.42 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "7b625664-d1e1-4960-bd35-6bb78ae0e4e1")
 		(property "Reference" "#PWR04"
-			(at 124.46 36.83 0)
+			(at 71.12 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1574,7 +1395,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 124.46 35.56 0)
+			(at 71.882 58.42 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1582,7 +1403,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 124.46 30.48 0)
+			(at 77.47 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1591,7 +1412,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 124.46 30.48 0)
+			(at 77.47 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1600,7 +1421,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 124.46 30.48 0)
+			(at 77.47 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1615,106 +1436,6 @@
 			(project ""
 				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
 					(reference "#PWR04")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:NMOS")
-		(at 87.63 43.18 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8fcb3ae7-eff6-4f19-ac61-a4d42c26c0be")
-		(property "Reference" "Q3"
-			(at 93.98 41.9099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "NMOS"
-			(at 93.98 44.4499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-			(at 92.71 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
-			(at 87.63 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "N-MOSFET transistor, drain/source/gate"
-			(at 87.63 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "NMOS"
-			(at 87.63 60.325 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Type" "VDMOS"
-			(at 87.63 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=D 2=G 3=S"
-			(at 87.63 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "babf9c7b-7bc5-4d09-91df-f56b4fd842c9")
-		)
-		(pin "1"
-			(uuid "b2223e54-2645-4391-93d1-e0a05c755f85")
-		)
-		(pin "3"
-			(uuid "11cf3bb5-0e91-488f-b1cd-1358d0e9fb86")
-		)
-		(instances
-			(project "compact-schematic"
-				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
-					(reference "Q3")
 					(unit 1)
 				)
 			)
@@ -1862,73 +1583,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 90.17 48.26 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b35f167f-79af-4f93-8b5b-31706e611c58")
-		(property "Reference" "#PWR03"
-			(at 90.17 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 90.17 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 90.17 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 90.17 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 90.17 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "bdf956e3-8249-48be-a7a0-01bc5ddb23eb")
-		)
-		(instances
-			(project "compact-schematic"
-				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
-					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 38.1 48.26 0)
+		(at 38.1 64.77 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1937,7 +1592,7 @@
 		(fields_autoplaced yes)
 		(uuid "c0c26a7d-480f-493f-bb51-39137f688d91")
 		(property "Reference" "#PWR01"
-			(at 38.1 54.61 0)
+			(at 38.1 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1946,7 +1601,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 38.1 53.34 0)
+			(at 38.1 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1954,7 +1609,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 38.1 48.26 0)
+			(at 38.1 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1963,7 +1618,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 38.1 48.26 0)
+			(at 38.1 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1972,7 +1627,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 38.1 48.26 0)
+			(at 38.1 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1987,83 +1642,6 @@
 			(project ""
 				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
 					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "custom:BuckBoost3.3V")
-		(at 134.62 34.29 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e7841b5d-2e0b-4ed2-a1d2-28042423ca77")
-		(property "Reference" "BuckBoost3.3V1"
-			(at 134.62 24.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "~"
-			(at 134.62 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "custom:BuckBoost3.3V"
-			(at 134.62 34.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 134.62 34.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 134.62 34.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1f6a92ec-01f7-4bbe-9f95-343cd3aac85f")
-		)
-		(pin "2"
-			(uuid "daf498d2-6542-420f-aff5-76468faa96e4")
-		)
-		(pin "1"
-			(uuid "1282f3e9-27b8-45c6-b48b-001ac721e85d")
-		)
-		(pin "3"
-			(uuid "d601acf4-21e1-4897-8265-217f7a81f933")
-		)
-		(pin "4"
-			(uuid "8a8955d1-a546-49ca-a372-9d3c59fd9c0f")
-		)
-		(instances
-			(project ""
-				(path "/b179b817-bd13-426b-83ec-f2fbe4e8b09a"
-					(reference "BuckBoost3.3V1")
 					(unit 1)
 				)
 			)
