@@ -7,7 +7,7 @@ MODE=${1:-dev}
 ADDITIONAL_ARGS=${@:2}
 if [ "$MODE" = "dev" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml"
-elif [ "$MODE" = "prod" ]; then
+elif [ "$MODE" = "prod" ] || [ "$MODE" = "prod-detach" ] || [ "$MODE" = "prod-stop" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml -f docker-compose.prod.yml"
 elif [ "$MODE" = "rm" ]; then
     DOCKER_COMPOSE="-f docker-compose.yml -f docker-compose.prod.yml"
