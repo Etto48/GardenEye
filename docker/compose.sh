@@ -22,6 +22,10 @@ function stop() {
         docker compose $DOCKER_COMPOSE $ENV_FILES down
     elif [ "$MODE" = "prod" ]; then
         docker compose $DOCKER_COMPOSE $ENV_FILES down
+    elif [ "$MODE" = "prod-detach" ]; then
+        echo "Production containers are still running."
+    elif [ "$MODE" = "prod-stop" ]; then
+        docker compose $DOCKER_COMPOSE $ENV_FILES down
     elif [ "$MODE" = "rm" ]; then
         docker compose $DOCKER_COMPOSE $ENV_FILES down -v --rmi all --remove-orphans
     fi
@@ -32,6 +36,10 @@ function start() {
         docker compose $DOCKER_COMPOSE $ENV_FILES up --build $ADDITIONAL_ARGS
     elif [ "$MODE" = "prod" ]; then
         docker compose $DOCKER_COMPOSE $ENV_FILES up --build $ADDITIONAL_ARGS
+    elif [ "$MODE" = "prod-detach" ]; then
+        docker compose $DOCKER_COMPOSE $ENV_FILES up --build $ADDITIONAL_ARGS -d
+    elif [ "$MODE" = "prod-stop" ]; then
+        echo "Stopping production containers..."
     elif [ "$MODE" = "rm" ]; then
         # do nothing
         echo "Removing all containers, images, volumes, and networks..."
