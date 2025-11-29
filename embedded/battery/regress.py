@@ -6,8 +6,8 @@ from scipy.interpolate import UnivariateSpline
 # ------------------------
 # PARAMETERS
 # ------------------------
-csv_file = "./embedded/battery/readings.csv"  # CSV with columns: timestamp,battery
-example_voltage = 7.4     # Example battery voltage to estimate percentage
+csv_file = "./embedded/battery/readings_01.csv"  # CSV with columns: timestamp,battery
+example_voltage = 3.7     # Example battery voltage to estimate percentage
 
 # ------------------------
 # LOAD AND PREPARE DATA
@@ -38,7 +38,7 @@ y_unique = y_sorted[indices]
 # FIT SPLINE
 # ------------------------
 # Fit a univariate spline: battery voltage (x) -> time percentage (y)
-spline = UnivariateSpline(x_unique, y_unique, s=50, k=3, ext=0)  # s is smoothing factor
+spline = UnivariateSpline(x_unique, y_unique, s=10000, k=3, ext=0)  # s is smoothing factor
 
 # Example usage
 est_pct = spline(example_voltage)

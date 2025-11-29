@@ -10,6 +10,7 @@
 namespace gardeneye::rest {
     bool sync_base_time() {
         HTTPClient client;
+        client.setReuse(false);
         client.begin(TIME_URL);
         client.setTimeout(HTTP_TIMEOUT_S * 1000);
         int code = client.GET();
@@ -32,6 +33,7 @@ namespace gardeneye::rest {
 
     bool register_device() {
         HTTPClient client;
+        client.setReuse(false);
         auto mac_str = gardeneye::wifi::get_mac_address();
         client.begin(REGISTER_URL);
         client.setTimeout(HTTP_TIMEOUT_S * 1000);
@@ -52,6 +54,7 @@ namespace gardeneye::rest {
     bool upload_readings() {
         // False for error
         HTTPClient client;
+        client.setReuse(false);
         auto mac_str = gardeneye::wifi::get_mac_address();
         client.begin(READINGS_URL);
         

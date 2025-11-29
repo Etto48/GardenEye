@@ -10,7 +10,7 @@ namespace gardeneye::sensors {
     DallasTemperature temperature_sensors(&one_wire);
 
     float battery_value(float battery) {
-        return battery * MAX_V * DIVIDER_CORRECTIVE_FACTOR;
+        return battery * MAX_V * BATTERY_SCALING_M + BATTERY_SCALING_Q;
     }
 
     float humidity_value(float humidity) {
